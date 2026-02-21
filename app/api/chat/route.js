@@ -48,6 +48,7 @@ export async function POST(req) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
+        const systemPrompt = buildContext();
         const profileCtx = profile && profile.sector
             ? `\n\nFOUNDER CONTEXT (IMPORTANT):
 You are talking to the founder of "${profile.startupName || 'a stealth startup'}". 
