@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { ArrowRight, Search, Zap, BarChart3, MessageSquare, CheckCircle, Users, Globe } from 'lucide-react';
+import AnimatedSearch from './components/AnimatedSearch';
+import HeroChips from './components/HeroChips';
 
 const STATS = [
   { value: '135+', label: 'Resources' },
@@ -55,32 +57,18 @@ export default function HomePage() {
       {/* ---- Hero ---- */}
       <section className="hero">
         <div className="container-sm">
-          <div className="hero__badge">
-            <span>135+ resources for Indian founders</span>
-          </div>
           <h1 className="hero__title">
-            Find the right grant, incubator,<br />or investor — in minutes
+            Find the right<br />
+            <span>startup resources</span>
           </h1>
           <p className="hero__sub">
-            SEGPT maps the entire Indian startup ecosystem and matches resources
-            to your startup profile. No more Googling scheme PDFs at 2am.
+            The AI advisor that maps the entire Indian startup ecosystem. Discover grants, incubators, and investors perfectly matched to your profile.
           </p>
-          <div className="hero__actions">
-            <Link href="/onboarding" className="btn btn-primary btn-lg">
-              Get started <ArrowRight size={16} />
-            </Link>
-            <Link href="/explore" className="btn btn-secondary btn-lg">
-              Browse directory
-            </Link>
-          </div>
-          <div className="hero__stats">
-            {STATS.map(s => (
-              <div key={s.label} className="hero__stat">
-                <span className="hero__stat-val">{s.value}</span>
-                <span className="hero__stat-label">{s.label}</span>
-              </div>
-            ))}
-          </div>
+
+          <AnimatedSearch />
+
+          <HeroChips />
+          <p className="hero__hint">Try "Seed funds in Bangalore" or "Biotech incubators with lab space"</p>
         </div>
       </section>
 
@@ -111,13 +99,21 @@ export default function HomePage() {
             <p>Stop wasting time on research. Start applying to the right programs.</p>
           </div>
           <div className="grid-3">
-            {FEATURES.map((f, i) => (
-              <div key={i} className="feature-card card">
-                <div className="feature-card__icon">{f.icon}</div>
-                <h3>{f.title}</h3>
-                <p>{f.desc}</p>
-              </div>
-            ))}
+            <div className="feature-card center">
+              <div className="feature-card__icon"><Search size={20} /></div>
+              <h3>One stop directory</h3>
+              <p>Every grant, incubator, accelerator, and investor — searchable and filterable in one place.</p>
+            </div>
+            <div className="feature-card center">
+              <div className="feature-card__icon"><Zap size={20} /></div>
+              <h3>Smart matching</h3>
+              <p>Tell us your sector, stage, and location. We rank every resource by relevance to your startup.</p>
+            </div>
+            <div className="feature-card center">
+              <div className="feature-card__icon"><MessageSquare size={20} /></div>
+              <h3>AI advisor</h3>
+              <p>Chat with an AI that knows every scheme, every incubator, and every VC — in detail.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -163,6 +159,10 @@ export default function HomePage() {
           color: var(--gray-900);
         }
 
+        .hero__title span {
+          color: var(--brand);
+        }
+
         .hero__sub {
           font-size: var(--fs-md);
           color: var(--gray-500);
@@ -171,38 +171,17 @@ export default function HomePage() {
           margin: 0 auto var(--space-2xl);
         }
 
-        .hero__actions {
+        .hero__chips {
           display: flex;
+          flex-wrap: wrap;
           justify-content: center;
           gap: var(--space-md);
-          margin-bottom: var(--space-3xl);
+          margin-bottom: var(--space-lg);
         }
 
-        .hero__stats {
-          display: flex;
-          justify-content: center;
-          gap: var(--space-3xl);
-          padding-top: var(--space-2xl);
-          border-top: 1px solid var(--gray-200);
-        }
-
-        .hero__stat {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 2px;
-        }
-        .hero__stat-val {
-          font-size: var(--fs-2xl);
-          font-weight: 800;
-          color: var(--gray-900);
-        }
-        .hero__stat-label {
-          font-size: var(--fs-xs);
+        .hero__hint {
+          font-size: var(--fs-sm);
           color: var(--gray-400);
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
         }
 
         /* Steps */
@@ -236,14 +215,22 @@ export default function HomePage() {
         /* Features */
         .feature-card {
           padding: var(--space-2xl);
+          border: none;
+          background: transparent;
+        }
+        .feature-card.center {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
         }
         .feature-card__icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 40px;
-          height: 40px;
-          border-radius: var(--radius-lg);
+          width: 48px;
+          height: 48px;
+          border-radius: var(--radius-full);
           background: var(--brand-bg);
           color: var(--brand);
           margin-bottom: var(--space-lg);

@@ -1,6 +1,6 @@
 /* ============================================
-   SEGPT Design System — Clean, Minimal, Professional
-   Inspired by YC, Stripe, Linear
+   SEGPT Design System — Ecomatch Aesthetic
+   Clean, Minimal, Professional
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -16,12 +16,12 @@
 
 /* ---------- Design Tokens ---------- */
 :root {
-  /* Brand — Teal / Emerald */
-  --brand: #0d9488;
-  --brand-light: #2dd4bf;
-  --brand-dark: #0f766e;
-  --brand-bg: #f0fdfa;
-  --brand-subtle: rgba(13, 148, 136, 0.08);
+  /* Brand — Coral / Pink */
+  --brand: #ff2e63;
+  --brand-light: #ff4d79;
+  --brand-dark: #e61c4d;
+  --brand-bg: #fff0f3;
+  --brand-subtle: rgba(255, 46, 99, 0.08);
 
   /* Neutrals */
   --white: #ffffff;
@@ -34,7 +34,8 @@
   --gray-600: #525252;
   --gray-700: #404040;
   --gray-800: #262626;
-  --gray-900: #171717;
+  --gray-900: #0f172a;
+  /* Deeper navy instead of black */
   --black: #0a0a0a;
 
   /* Semantic */
@@ -74,11 +75,12 @@
   --space-5xl: 96px;
 
   /* Radii */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
+  /* Pill */
 
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -161,7 +163,7 @@ h6 {
   font-size: var(--fs-sm);
   border: none;
   cursor: pointer;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   transition: all var(--transition-fast);
   padding: 10px 20px;
   line-height: 1;
@@ -204,7 +206,7 @@ h6 {
 .btn-lg {
   padding: 12px 28px;
   font-size: var(--fs-base);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
 }
 
 .btn-sm {
@@ -221,7 +223,7 @@ h6 {
 .card {
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   transition: box-shadow var(--transition-base), border-color var(--transition-base);
 }
 
@@ -316,7 +318,7 @@ select {
   font-size: var(--fs-sm);
   padding: 10px 14px;
   border: 1px solid var(--gray-300);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   background: var(--white);
   color: var(--gray-900);
   outline: none;

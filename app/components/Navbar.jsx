@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Home, Compass, Bot, User, Menu, X } from 'lucide-react';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -26,8 +26,7 @@ export default function Navbar() {
     <nav className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
       <div className="nav__inner container-lg">
         <Link href="/" className="nav__logo" onClick={() => setMenuOpen(false)}>
-          <span className="nav__logo-mark">S</span>
-          <span className="nav__logo-text">SEGPT</span>
+          <span className="nav__logo-text">segpt</span>
         </Link>
 
         <div className={`nav__links ${menuOpen ? 'nav__links--open' : ''}`}>
@@ -42,13 +41,33 @@ export default function Navbar() {
             </Link>
           ))}
           <Link href="/onboarding" className="btn btn-primary btn-sm" onClick={() => setMenuOpen(false)}>
-            Get Started
+            Build Profile
           </Link>
         </div>
 
         <button className="nav__toggle" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="nav-bottom-mobile">
+        <Link href="/" className={`nav-bottom-item ${pathname === '/' ? 'nav-bottom-item--active' : ''}`}>
+          <Home size={20} className="mb-0.5" />
+          <span>Home</span>
+        </Link>
+        <Link href="/explore" className={`nav-bottom-item ${pathname === '/explore' ? 'nav-bottom-item--active' : ''}`}>
+          <Compass size={20} className="mb-0.5" />
+          <span>Explore</span>
+        </Link>
+        <Link href="/advisor" className={`nav-bottom-item ${pathname === '/advisor' ? 'nav-bottom-item--active' : ''}`}>
+          <Bot size={20} className="mb-0.5" />
+          <span>Advisor</span>
+        </Link>
+        <Link href="/onboarding" className={`nav-bottom-item ${pathname === '/onboarding' ? 'nav-bottom-item--active' : ''}`}>
+          <User size={20} className="mb-0.5" />
+          <span>Profile</span>
+        </Link>
       </div>
 
       <style jsx>{`
@@ -81,23 +100,15 @@ export default function Navbar() {
           font-weight: 700;
         }
 
-        .nav__logo-mark {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 28px;
-          height: 28px;
-          background: var(--brand);
-          color: var(--white);
-          font-size: var(--fs-sm);
+        .nav__logo-text {
+          font-size: var(--fs-lg);
           font-weight: 800;
-          border-radius: var(--radius-md);
+          color: var(--gray-900);
+          letter-spacing: -0.04em;
         }
 
-        .nav__logo-text {
-          font-size: var(--fs-base);
-          color: var(--gray-900);
-          letter-spacing: -0.02em;
+        .nav__logo-text span {
+          color: var(--brand);
         }
 
         .nav__links {
@@ -107,8 +118,7 @@ export default function Navbar() {
         }
 
         .nav__link {
-          font-size: var(--fs-sm);
-          font-weight: 500;
+          font-weight: 600;
           color: var(--gray-500);
           text-decoration: none;
           transition: color var(--transition-fast);
@@ -130,24 +140,63 @@ export default function Navbar() {
           padding: var(--space-sm);
         }
 
+        .nav-bottom-mobile {
+          display: none;
+        }
+
         @media (max-width: 640px) {
-          .nav__toggle {
+          .nav__toggle { display: none !important; }
+          .nav__links { display: none !important; }
+          
+          .nav-bottom-mobile {
             display: flex;
+            position: fixed;
+            bottom: max(16px, env(safe-area-inset-bottom));
+            left: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: var(--radius-full);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            justify-content: space-around;
+            padding: 8px 12px;
+            z-index: 9999;
           }
-          .nav__links {
-            display: none;
-            position: absolute;
-            top: 56px;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
+
+          .nav-bottom-item {
+            display: flex;
             flex-direction: column;
-            padding: var(--space-lg) var(--space-xl);
-            gap: var(--space-lg);
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            text-decoration: none;
+            color: var(--gray-400);
+            font-size: 10px;
+            font-weight: 600;
+            transition: color var(--transition-fast), transform 0.2s;
+            flex: 1;
+            padding: 4px;
           }
-          .nav__links--open {
-            display: flex;
+          
+          .nav-bottom-item span { margin-top: 2px; }
+
+          .nav-bottom-item--active {
+            color: var(--brand);
+          }
+          
+          .nav-bottom-item--active :global(svg) {
+            transform: translateY(-2px);
+          }
+        }
+      `}</style>
+
+      {/* Global CSS for pushing the body up on mobile to prevent overlap with floating dock */}
+      <style jsx global>{`
+        @media (max-width: 640px) {
+          body {
+            padding-bottom: 90px !important;
           }
         }
       `}</style>

@@ -8,10 +8,7 @@ export default function Footer() {
       <div className="container">
         <div className="footer__top">
           <div className="footer__brand">
-            <div className="footer__logo">
-              <span className="footer__logo-mark">S</span>
-              <span className="footer__logo-text">SEGPT</span>
-            </div>
+            <span className="footer__logo-text">segpt</span>
             <p className="footer__tagline">
               Helping Indian founders navigate the startup ecosystem.
             </p>
@@ -63,23 +60,15 @@ export default function Footer() {
           margin-bottom: var(--space-md);
         }
 
-        .footer__logo-mark {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 24px;
-          height: 24px;
-          background: var(--brand);
-          color: white;
-          font-size: var(--fs-xs);
+        .footer__logo-text {
+          font-size: var(--fs-lg);
           font-weight: 800;
-          border-radius: var(--radius-sm);
+          color: var(--gray-900);
+          letter-spacing: -0.04em;
         }
 
-        .footer__logo-text {
-          font-size: var(--fs-sm);
-          font-weight: 700;
-          color: var(--gray-900);
+        .footer__logo-text span {
+          color: var(--brand);
         }
 
         .footer__tagline {
