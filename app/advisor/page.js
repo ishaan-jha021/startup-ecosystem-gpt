@@ -224,7 +224,7 @@ export default function AdvisorPage() {
         footer { display: none !important; } /* Hide the global footer here */
         
         .advisor { height: calc(100vh - 65px); background: #fbfbfb; }
-        .advisor__layout { display: grid; grid-template-columns: 280px 1fr; height: 100%; max-width: 1440px; margin: 0 auto; background: var(--white); box-shadow: 0 0 40px rgba(0,0,0,0.02);}
+        .advisor__layout { display: grid; grid-template-columns: 280px 1fr; height: 100%; max-width: 1440px; margin: 0 auto; background: var(--white); box-shadow: 0 0 40px rgba(0,0,0,0.02); overflow: hidden; }
 
         .advisor__side {
           padding: var(--space-xl);
@@ -245,7 +245,7 @@ export default function AdvisorPage() {
         }
         .advisor__sug:hover { border-color: var(--brand); color: var(--brand); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.04); }
 
-        .advisor__chat { display: flex; flex-direction: column; height: 100%; position: relative; }
+        .advisor__chat { display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; min-height: 0; }
         .advisor__messages { flex: 1; overflow-y: auto; padding: var(--space-2xl) var(--space-xl); display: flex; flex-direction: column; gap: var(--space-xl); scroll-behavior: smooth; }
 
         .msg { display: flex; align-items: flex-end; gap: var(--space-sm); max-width: 800px; margin: 0 auto; width: 100%; }
