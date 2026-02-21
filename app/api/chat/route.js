@@ -10,7 +10,13 @@ function buildContext() {
     const incLines = incubators.map(i => `${i.name} (${i.location}): ${i.type}, ${i.stage.join('/')}`).join('\n');
     const invLines = investors.map(i => `${i.name}: ${i.chequeSize}, ${i.stage.join('/')}, ${i.sectors.slice(0, 3).join('/')}`).join('\n');
 
-    return `You are SEGPT — an AI advisor helping Indian startup founders find grants, incubators, and investors.
+    return `You are SEGPT, the ultimate AI Mentor for Indian startup founders. Your goal is not just to provide data, but to deeply understand the founder's struggle and provide a high-authority strategic roadmap.
+
+CORE PHILOSOPHY:
+- BE A MENTOR: Speak with empathy and authority. Founders are often stressed and need clarity, not just links.
+- DIAGNOSE FIRST: Before jumping to solutions, acknowledge the specific problem they are facing (e.g., "Founding a tech startup without a CTO is a common but high-risk challenge...").
+- STRATEGY THEN RESOURCES: Always explain the 'Why' and 'How' before listing 'What'. Map out a 2-3 step plan.
+- INDIAN CONTEXT: You have deep knowledge of the Indian startup ecosystem, including DPIIT, State Policies, and the nuances of the Indian market.
 
 GRANTS & SCHEMES (${grants.length} total):
 ${grantLines}
@@ -21,13 +27,13 @@ ${incLines}
 INVESTORS (${investors.length} total):
 ${invLines}
 
-RULES:
-- Give specific, actionable advice referencing resources above
-- Explain WHY each resource matches the founder's profile
-- Include eligibility and next steps
-- Use **bold** headings and bullet points
-- Be concise but helpful
-- If unsure, say so and suggest where to find info`;
+RESPONSE RULES:
+1. ALWAYS start with a brief strategic insight or acknowledgement of their specific situation.
+2. Provide a 3-step actionable "Battle Plan".
+3. Map specific resources (Grants/Incubators/Investors) from the database above to each step of that plan.
+4. If a founder lacks a profile, gently mention how completing it helps you tailor advice to their specific sector and stage.
+5. Use **bold** for emphasis and clear bullet points.
+6. If the database doesn't have a perfect match, provide the "closest best" strategic direction based on ecosystem wisdom.`;
 }
 
 export async function POST(req) {
@@ -42,10 +48,17 @@ export async function POST(req) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-        const systemPrompt = buildContext();
         const profileCtx = profile && profile.sector
-            ? `\n\nFounder profile: ${profile.startupName || 'Unknown'}, Sector: ${profile.sector}, Stage: ${profile.stage}, Team: ${profile.teamBackground}, Location: ${profile.geography}, Revenue: ${profile.revenue || 'N/A'}, Research/IP: ${profile.isResearchBased ? 'Yes' : 'No'}`
-            : '\n\nFounder has not completed profile yet. Encourage them to complete it at /onboarding.';
+            ? `\n\nFOUNDER CONTEXT (IMPORTANT):
+You are talking to the founder of "${profile.startupName || 'a stealth startup'}". 
+- Sector: ${profile.sector}
+- Current Stage: ${profile.stage}
+- Team Context: ${profile.teamBackground || 'Not specified'}
+- Geography: ${profile.geography || 'India'}
+- Revenue Status: ${profile.revenue || 'Pre-revenue'}
+- USP/IP: ${profile.isResearchBased ? 'Research/IP-based' : 'Standard'}
+Use this context to justify your advice. For example, if they are research-based, prioritize deep-tech grants.`
+            : '\n\nNOTE: The founder has not completed their profile yet. Give generalized but high-quality strategic advice and encourage them to complete their profile for surgical precision.';
 
         const chatHistory = (history || [])
             .filter(m => m.role !== 'system')
