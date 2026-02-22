@@ -53,102 +53,93 @@ export async function POST(req) {
         const userStage = profile?.stage || 'Idea';
 
         const filterItems = (list) => {
-            return list.filter(item => {
-                const matchesSector = item.sectors?.some(s => userSectors.includes(s.toLowerCase())) || item.sectors?.includes('All Sectors');
-                const matchesStage = item.stage?.includes(userStage);
-                return matchesSector || matchesStage;
-            }).slice(0, 10);
-        };
+        }).slice(0, 5); // Extreme limit for speed on Vercel Hobby
+    };
 
-        const filteredGrants = filterItems(grants);
-        const filteredIncubators = filterItems(incubators);
-        const filteredInvestors = filterItems(investors);
+    const filteredGrants = filterItems(grants);
+    const filteredIncubators = filterItems(incubators);
+    const filteredInvestors = filterItems(investors);
 
-        const systemPrompt = buildContext(filteredGrants, filteredIncubators, filteredInvestors);
-        const profileCtx = profile && profile.sector
-            ? `\n\nFOUNDER CONTEXT:
+    const systemPrompt = buildContext(filteredGrants, filteredIncubators, filteredInvestors);
+    const profileCtx = profile && profile.sector
+        ? `\n\nFOUNDER CONTEXT:
 Startup: "${profile.startupName || 'Stealth'}", Sector: ${profile.sector}, Stage: ${profile.stage}, Geography: ${profile.geography}.
 Note: Use this to personalize the plan.`
-            : '\n\nNOTE: Founder profile incomplete. Provide general high-quality strategy.';
+        : '\n\nNOTE: Founder profile incomplete. Provide general high-quality strategy.';
 
-        const chatHistory = (history || [])
-            .filter(m => m.role !== 'system')
-            .slice(-6)
-            .map(m => ({
-                role: m.role,
-                content: m.content
-            }));
+    const chatHistory = (history || [])
+        .filter(m => m.role !== 'system')
+        .slice(-6)
+        .map(m => ({
+            role: m.role,
+            content: m.content
+        }));
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 9000); // 9s for Vercel Hobby limit
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 9000); // 9s for Vercel Hobby limit
 
-        try {
-            const fetchResponse = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: "deepseek-ai/deepseek-v3.2",
-                    messages: [
-                        { role: "system", content: systemPrompt + profileCtx },
-                        { role: "assistant", content: "Ready to help! I have access to the full Indian startup ecosystem database." },
-                        ...chatHistory,
-                        { role: "user", content: message }
-                    ],
-                    max_tokens: 2048,
-                    temperature: 0.7,
-                    top_p: 0.9,
-                    // "thinking: true" is likely too slow for Vercel Hobby (10s limit)
-                    // Disabling for stability
-                    extra_body: {
-                        chat_template_kwargs: { thinking: false }
-                    }
-                }),
-                signal: controller.signal
-            });
+    try {
+        const fetchResponse = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "meta/llama-3.1-8b-instruct", // Fast and reliable for 10s limits
+                messages: [
+                    { role: "system", content: systemPrompt + profileCtx },
+                    { role: "assistant", content: "Ready to help! I have access to the full Indian startup ecosystem database." },
+                    ...chatHistory,
+                    { role: "user", content: message }
+                ],
+                max_tokens: 1024,
+                temperature: 0.7,
+                top_p: 0.9
+            }),
+            signal: controller.signal
+        });
 
-            clearTimeout(timeoutId);
-            const responseText = await fetchResponse.text();
+        clearTimeout(timeoutId);
+        const responseText = await fetchResponse.text();
 
-            if (!fetchResponse.ok) {
-                console.error('NVIDIA NIM Error Status:', fetchResponse.status);
-                return NextResponse.json({
-                    reply: `⚠️ **AI Call Failed (Status ${fetchResponse.status})**: ${responseText.slice(0, 200)} 
+        if (!fetchResponse.ok) {
+            console.error('NVIDIA NIM Error Status:', fetchResponse.status);
+            return NextResponse.json({
+                reply: `⚠️ **AI Call Failed (Status ${fetchResponse.status})**: ${responseText.slice(0, 200)} 
                     
                     ---
                     ${getFallbackReply(message, profile)}`
-                });
-            }
+            });
+        }
 
-            const data = JSON.parse(responseText);
-            const reply = data.choices[0].message.content;
-            return NextResponse.json({ reply });
+        const data = JSON.parse(responseText);
+        const reply = data.choices[0].message.content;
+        return NextResponse.json({ reply });
 
-        } catch (e) {
-            clearTimeout(timeoutId);
-            if (e.name === 'AbortError') {
-                return NextResponse.json({
-                    reply: `⚠️ **AI Request Timed Out**: The model is taking too long to respond. 
+    } catch (e) {
+        clearTimeout(timeoutId);
+        if (e.name === 'AbortError') {
+            return NextResponse.json({
+                reply: `⚠️ **AI Request Timed Out**: The model is taking too long to respond. 
                     
                     This often happens on Vercel's free tier. Please try a shorter question or check back in a moment.
                     
                     ---
                     ${getFallbackReply(message, profile)}`
-                });
-            }
-            throw e;
+            });
         }
+        throw e;
+    }
 
-    } catch (error) {
-        console.error('Fatal Chat API error:', error);
-        return NextResponse.json({
-            reply: `⚠️ **Fatal API Error**: ${error.message || 'Unknown error during request processing.'}
+} catch (error) {
+    console.error('Fatal Chat API error:', error);
+    return NextResponse.json({
+        reply: `⚠️ **Fatal API Error**: ${error.message || 'Unknown error during request processing.'}
             
             Please check your console for details or verify the API key and model name.`,
-        });
-    }
+    });
+}
 }
 
 function getFallbackReply(message, profile) {
