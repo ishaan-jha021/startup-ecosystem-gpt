@@ -86,7 +86,7 @@ Note: Use this to personalize the plan.`
                 "Authorization": `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "glm-4-9b-chat",
+                model: "zhipuai/glm-4-9b-chat",
                 messages: [
                     { role: "system", content: systemPrompt + profileCtx },
                     { role: "assistant", content: "Ready to help! I have access to the full Indian startup ecosystem database." },
@@ -99,20 +99,27 @@ Note: Use this to personalize the plan.`
             })
         });
 
+        const responseText = await fetchResponse.text();
+
         if (!fetchResponse.ok) {
-            const errorData = await fetchResponse.json();
-            console.error('NVIDIA NIM Error:', errorData);
+            console.error('NVIDIA NIM Error Status:', fetchResponse.status);
+            console.error('NVIDIA NIM Error Body:', responseText);
             return NextResponse.json({
-                reply: `⚠️ **AI Call Failed**: ${errorData?.error?.message || 'NVIDIA API Error'} 
+                reply: `⚠️ **AI Call Failed (Status ${fetchResponse.status})**: ${responseText.slice(0, 200)} 
                 
                 ---
                 ${getFallbackReply(message, profile)}`
             });
         }
 
-        const data = await fetchResponse.json();
-        const reply = data.choices[0].message.content;
-        return NextResponse.json({ reply });
+        try {
+            const data = JSON.parse(responseText);
+            const reply = data.choices[0].message.content;
+            return NextResponse.json({ reply });
+        } catch (e) {
+            console.error('JSON Parse Error:', e);
+            throw new Error(`Invalid JSON response from NVIDIA: ${responseText.slice(0, 100)}`);
+        }
 
     } catch (error) {
         console.error('Fatal Chat API error:', error);
