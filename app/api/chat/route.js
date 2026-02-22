@@ -66,14 +66,12 @@ export async function POST(req) {
 
         const systemPrompt = buildContext(filteredGrants, filteredIncubators, filteredInvestors);
         const profileCtx = profile && profile.sector
-            ? `\n\nFOUNDER CONTEXT:
-Startup: "${profile.startupName || 'Stealth'}", Sector: ${profile.sector}, Stage: ${profile.stage}, Geography: ${profile.geography}.
-Note: Use this to personalize the plan.`
-            : '\n\nNOTE: Founder profile incomplete. Provide general high-quality strategy.';
+            ? `\n\nCONTEXT: Startup "${profile.startupName || 'Stealth'}", ${profile.sector}, ${profile.stage}.`
+            : '\n\nNOTE: Profile incomplete.';
 
         const chatHistory = (history || [])
             .filter(m => m.role !== 'system')
-            .slice(-6)
+            .slice(-2) // Only last 2 messages to speed up processing
             .map(m => ({
                 role: m.role,
                 content: m.content
@@ -97,8 +95,8 @@ Note: Use this to personalize the plan.`
                         ...chatHistory,
                         { role: "user", content: message }
                     ],
-                    max_tokens: 1024,
-                    temperature: 0.7,
+                    max_tokens: 300, // Short responses finish faster
+                    temperature: 0.1, // Faster, more stable
                     top_p: 0.9
                 }),
                 signal: controller.signal
