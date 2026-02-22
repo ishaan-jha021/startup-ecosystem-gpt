@@ -79,46 +79,59 @@ Note: Use this to personalize the plan.`
                 content: m.content
             }));
 
-        const fetchResponse = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: "z-ai/glm5",
-                messages: [
-                    { role: "system", content: systemPrompt + profileCtx },
-                    { role: "assistant", content: "Ready to help! I have access to the full Indian startup ecosystem database." },
-                    ...chatHistory,
-                    { role: "user", content: message }
-                ],
-                max_tokens: 1024,
-                temperature: 0.2,
-                top_p: 0.7
-            })
-        });
-
-        const responseText = await fetchResponse.text();
-
-        if (!fetchResponse.ok) {
-            console.error('NVIDIA NIM Error Status:', fetchResponse.status);
-            console.error('NVIDIA NIM Error Body:', responseText);
-            return NextResponse.json({
-                reply: `⚠️ **AI Call Failed (Status ${fetchResponse.status})**: ${responseText.slice(0, 200)} 
-                
-                ---
-                ${getFallbackReply(message, profile)}`
-            });
-        }
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for Vercel
 
         try {
+            const fetchResponse = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "z-ai/glm-4", // Use GLM-4 (faster than GLM-5)
+                    messages: [
+                        { role: "system", content: systemPrompt + profileCtx },
+                        { role: "assistant", content: "Ready to help! I have access to the full Indian startup ecosystem database." },
+                        ...chatHistory,
+                        { role: "user", content: message }
+                    ],
+                    max_tokens: 1024,
+                    temperature: 0.2,
+                    top_p: 0.7
+                }),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+            const responseText = await fetchResponse.text();
+
+            if (!fetchResponse.ok) {
+                console.error('NVIDIA NIM Error Status:', fetchResponse.status);
+                return NextResponse.json({
+                    reply: `⚠️ **AI Call Failed (Status ${fetchResponse.status})**: ${responseText.slice(0, 200)} 
+                    
+                    ---
+                    ${getFallbackReply(message, profile)}`
+                });
+            }
+
             const data = JSON.parse(responseText);
             const reply = data.choices[0].message.content;
             return NextResponse.json({ reply });
+
         } catch (e) {
-            console.error('JSON Parse Error:', e);
-            throw new Error(`Invalid JSON response from NVIDIA: ${responseText.slice(0, 100)}`);
+            clearTimeout(timeoutId);
+            if (e.name === 'AbortError') {
+                return NextResponse.json({
+                    reply: `⚠️ **AI Request Timed Out**: The model (z-ai/glm-4) is taking too long to respond. 
+                    
+                    ---
+                    ${getFallbackReply(message, profile)}`
+                });
+            }
+            throw e;
         }
 
     } catch (error) {
