@@ -46,7 +46,10 @@ export async function POST(req) {
         }
 
         // --- OPTIMIZE CONTEXT BY FILTERING ---
-        const userSectors = [profile?.sector || '', ...(profile?.interests || [])].map(s => s.toLowerCase());
+        const userSectors = [
+            profile?.sector || '',
+            ...(profile?.interests || [])
+        ].filter(Boolean).map(s => s.toLowerCase());
         const userStage = profile?.stage || 'Idea';
 
         const filterItems = (list) => {
@@ -114,7 +117,9 @@ Note: Use this to personalize the plan.`
     } catch (error) {
         console.error('Fatal Chat API error:', error);
         return NextResponse.json({
-            reply: '⚠️ An unexpected error occurred. Please try again later or check your network connection.',
+            reply: `⚠️ **Fatal API Error**: ${error.message || 'Unknown error during request processing.'}
+            
+            Please check your console for details or verify the API key and model name.`,
         });
     }
 }
