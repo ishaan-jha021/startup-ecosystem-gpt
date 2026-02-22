@@ -80,7 +80,7 @@ Note: Use this to personalize the plan.`
             }));
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for Vercel
+        const timeoutId = setTimeout(() => controller.abort(), 9000); // 9s for Vercel Hobby limit
 
         try {
             const fetchResponse = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
@@ -97,11 +97,13 @@ Note: Use this to personalize the plan.`
                         ...chatHistory,
                         { role: "user", content: message }
                     ],
-                    max_tokens: 4096, // Reduced from 8192 for faster Vercel response
-                    temperature: 1,
-                    top_p: 0.95,
+                    max_tokens: 2048,
+                    temperature: 0.7,
+                    top_p: 0.9,
+                    // "thinking: true" is likely too slow for Vercel Hobby (10s limit)
+                    // Disabling for stability
                     extra_body: {
-                        chat_template_kwargs: { thinking: true }
+                        chat_template_kwargs: { thinking: false }
                     }
                 }),
                 signal: controller.signal
@@ -128,7 +130,9 @@ Note: Use this to personalize the plan.`
             clearTimeout(timeoutId);
             if (e.name === 'AbortError') {
                 return NextResponse.json({
-                    reply: `⚠️ **AI Request Timed Out**: The model (z-ai/glm-4) is taking too long to respond. 
+                    reply: `⚠️ **AI Request Timed Out**: The model is taking too long to respond. 
+                    
+                    This often happens on Vercel's free tier. Please try a shorter question or check back in a moment.
                     
                     ---
                     ${getFallbackReply(message, profile)}`
