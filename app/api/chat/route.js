@@ -42,7 +42,14 @@ export async function POST(req) {
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
-            return NextResponse.json({ reply: getFallbackReply(message, profile) });
+            return NextResponse.json({
+                reply: `⚠️ **AI Config Missing**: The \`GEMINI_API_KEY\` is not set in environment variables. 
+                
+                If you are on Vercel, please add it to your project settings. 
+                
+                ---
+                ${getFallbackReply(message, profile)}`
+            });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
@@ -105,7 +112,14 @@ Use this context to justify your advice. For example, if they are research-based
             });
         }
 
-        return NextResponse.json({ reply: getFallbackReply(message, profile) });
+        // If we reach here, it failed with a non-429 error or after retries
+        console.error('Gemini API Error:', lastErr);
+        return NextResponse.json({
+            reply: `⚠️ **AI Call Failed**: ${lastErr?.message || 'Unknown API Error'} 
+            
+            ---
+            ${getFallbackReply(message, profile)}`
+        });
 
     } catch (error) {
         console.error('Fatal Chat API error:', error);
