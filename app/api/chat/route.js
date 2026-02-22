@@ -6,9 +6,9 @@ import { investors } from '@/lib/data/investors';
 
 function buildContext(filteredGrants, filteredIncubators, filteredInvestors) {
     // Build strings from ONLY the relevant items to save tokens and stay within rate limits
-    const grantLines = filteredGrants.map(g => `- ${g.name}: ${g.funding}, Stage: ${g.stage.join('/')}`).join('\n');
-    const incLines = filteredIncubators.map(i => `- ${i.name} (${i.location}): ${i.type}`).join('\n');
-    const invLines = filteredInvestors.map(i => `- ${i.name}: ${i.chequeSize}, Sectors: ${i.sectors.slice(0, 3).join('/')}`).join('\n');
+    const grantLines = filteredGrants.map(g => `- ${g.name}: ${g.funding}`).join('\n');
+    const incLines = filteredIncubators.map(i => `- ${i.name} (${i.location})`).join('\n');
+    const invLines = filteredInvestors.map(i => `- ${i.name}: ${i.chequeSize}`).join('\n');
 
     return `You are SEGPT, the ultimate AI Mentor for Indian startup founders. Your goal is to provide a strategic roadmap and match founders with the best resources.
 
@@ -49,7 +49,7 @@ export async function POST(req) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         // --- OPTIMIZE CONTEXT BY FILTERING ---
         // Only send items that match the user's sector or stage to save tokens
@@ -61,7 +61,7 @@ export async function POST(req) {
                 const matchesSector = item.sectors?.some(s => userSectors.includes(s.toLowerCase())) || item.sectors?.includes('All Sectors');
                 const matchesStage = item.stage?.includes(userStage);
                 return matchesSector || matchesStage;
-            }).slice(0, 15); // Limit to top 15 per category to keep prompt slim
+            }).slice(0, 8); // Very aggressive limit to avoid TPM quota issues
         };
 
         const filteredGrants = filterItems(grants);
