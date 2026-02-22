@@ -51,13 +51,30 @@ export async function POST(req) {
             ...(profile?.interests || [])
         ].filter(Boolean).map(s => s.toLowerCase());
         const userStage = profile?.stage || 'Idea';
+        const qLower = message.toLowerCase();
 
         const filterItems = (list) => {
-            return list.filter(item => {
-                const matchesSector = item.sectors?.some(s => userSectors.includes(s.toLowerCase())) || item.sectors?.includes('All Sectors');
-                const matchesStage = item.stage?.includes(userStage);
-                return matchesSector || matchesStage;
-            }).slice(0, 5); // Extreme limit for speed on Vercel Hobby
+            return list
+                .map(item => {
+                    let score = 0;
+                    const itemLoc = (item.location || '').toLowerCase();
+                    const itemSectors = (item.sectors || []).map(s => s.toLowerCase());
+
+                    // Priority 1: Exact location match (e.g. "Andheri", "Mumbai")
+                    if (itemLoc && qLower.includes(itemLoc)) score += 10;
+                    if (qLower.includes('west line') && itemLoc.includes('mumbai')) score += 5;
+
+                    // Priority 2: Sector match
+                    if (itemSectors.some(s => userSectors.includes(s)) || itemSectors.includes('all sectors')) score += 3;
+
+                    // Priority 3: Stage match
+                    if (item.stage?.includes(userStage)) score += 1;
+
+                    return { ...item, score };
+                })
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5); // Pick top 5 most relevant items
         };
 
         const filteredGrants = filterItems(grants);
