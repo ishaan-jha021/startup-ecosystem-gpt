@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { grants } from '@/lib/data/grants';
 import { incubators } from '@/lib/data/incubators';
 import { investors } from '@/lib/data/investors';
@@ -35,24 +34,18 @@ RESPONSE RULES:
 export async function POST(req) {
     try {
         const { message, profile, history } = await req.json();
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.NVIDIA_API_KEY;
 
         if (!apiKey) {
             return NextResponse.json({
-                reply: `⚠️ **AI Config Missing**: The \`GEMINI_API_KEY\` is not set in environment variables. 
-                
-                If you are on Vercel, please add it to your project settings. 
+                reply: `⚠️ **AI Config Missing**: The \`NVIDIA_API_KEY\` is not set in environment variables. 
                 
                 ---
                 ${getFallbackReply(message, profile)}`
             });
         }
 
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
         // --- OPTIMIZE CONTEXT BY FILTERING ---
-        // Only send items that match the user's sector or stage to save tokens
         const userSectors = [profile?.sector || '', ...(profile?.interests || [])].map(s => s.toLowerCase());
         const userStage = profile?.stage || 'Idea';
 
@@ -61,7 +54,7 @@ export async function POST(req) {
                 const matchesSector = item.sectors?.some(s => userSectors.includes(s.toLowerCase())) || item.sectors?.includes('All Sectors');
                 const matchesStage = item.stage?.includes(userStage);
                 return matchesSector || matchesStage;
-            }).slice(0, 8); // Very aggressive limit to avoid TPM quota issues
+            }).slice(0, 10);
         };
 
         const filteredGrants = filterItems(grants);
@@ -79,54 +72,44 @@ Note: Use this to personalize the plan.`
             .filter(m => m.role !== 'system')
             .slice(-6)
             .map(m => ({
-                role: m.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: m.content }],
+                role: m.role,
+                content: m.content
             }));
 
-        const MAX_RETRIES = 2;
-        let lastErr = null;
+        const fetchResponse = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "glm-4-9b-chat",
+                messages: [
+                    { role: "system", content: systemPrompt + profileCtx },
+                    { role: "assistant", content: "Ready to help! I have access to the full Indian startup ecosystem database." },
+                    ...chatHistory,
+                    { role: "user", content: message }
+                ],
+                max_tokens: 1024,
+                temperature: 0.2,
+                top_p: 0.7
+            })
+        });
 
-        for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-            try {
-                if (attempt > 0) {
-                    await new Promise(r => setTimeout(r, attempt * 2000));
-                }
-
-                const chat = model.startChat({
-                    history: [
-                        { role: 'user', parts: [{ text: systemPrompt + profileCtx }] },
-                        { role: 'model', parts: [{ text: 'Ready to help! I have access to the full Indian startup ecosystem database.' }] },
-                        ...chatHistory,
-                    ],
-                });
-
-                const result = await chat.sendMessage(message);
-                const reply = result.response.text();
-                return NextResponse.json({ reply });
-            } catch (err) {
-                lastErr = err;
-                const is429 = err?.status === 429 || String(err?.message || '').includes('429') || String(err || '').includes('RESOURCE_EXHAUSTED');
-                if (!is429) break;
-                console.log(`Gemini 429 — retry ${attempt + 1}/${MAX_RETRIES}...`);
-            }
-        }
-
-        // If we reach here, it failed after retries
-        const is429 = lastErr?.status === 429 || String(lastErr?.message || '').includes('429') || String(lastErr || '').includes('RESOURCE_EXHAUSTED');
-        if (is429) {
+        if (!fetchResponse.ok) {
+            const errorData = await fetchResponse.json();
+            console.error('NVIDIA NIM Error:', errorData);
             return NextResponse.json({
-                reply: 'The AI advisor is temporarily rate-limited. Please wait about 30 seconds and try again.\n\nIn the meantime, browse resources on the **Explore** page.',
+                reply: `⚠️ **AI Call Failed**: ${errorData?.error?.message || 'NVIDIA API Error'} 
+                
+                ---
+                ${getFallbackReply(message, profile)}`
             });
         }
 
-        // If we reach here, it failed with a non-429 error or after retries
-        console.error('Gemini API Error:', lastErr);
-        return NextResponse.json({
-            reply: `⚠️ **AI Call Failed**: ${lastErr?.message || 'Unknown API Error'} 
-            
-            ---
-            ${getFallbackReply(message, profile)}`
-        });
+        const data = await fetchResponse.json();
+        const reply = data.choices[0].message.content;
+        return NextResponse.json({ reply });
 
     } catch (error) {
         console.error('Fatal Chat API error:', error);
