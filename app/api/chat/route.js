@@ -4,36 +4,32 @@ import { grants } from '@/lib/data/grants';
 import { incubators } from '@/lib/data/incubators';
 import { investors } from '@/lib/data/investors';
 
-function buildContext() {
-    // Keep concise — name + key facts only to stay within token limits
-    const grantLines = grants.map(g => `${g.name}: ${g.funding}, ${g.stage.join('/')}`).join('\n');
-    const incLines = incubators.map(i => `${i.name} (${i.location}): ${i.type}, ${i.stage.join('/')}`).join('\n');
-    const invLines = investors.map(i => `${i.name}: ${i.chequeSize}, ${i.stage.join('/')}, ${i.sectors.slice(0, 3).join('/')}`).join('\n');
+function buildContext(filteredGrants, filteredIncubators, filteredInvestors) {
+    // Build strings from ONLY the relevant items to save tokens and stay within rate limits
+    const grantLines = filteredGrants.map(g => `- ${g.name}: ${g.funding}, Stage: ${g.stage.join('/')}`).join('\n');
+    const incLines = filteredIncubators.map(i => `- ${i.name} (${i.location}): ${i.type}`).join('\n');
+    const invLines = filteredInvestors.map(i => `- ${i.name}: ${i.chequeSize}, Sectors: ${i.sectors.slice(0, 3).join('/')}`).join('\n');
 
-    return `You are SEGPT, the ultimate AI Mentor for Indian startup founders. Your goal is not just to provide data, but to deeply understand the founder's struggle and provide a high-authority strategic roadmap.
+    return `You are SEGPT, the ultimate AI Mentor for Indian startup founders. Your goal is to provide a strategic roadmap and match founders with the best resources.
 
 CORE PHILOSOPHY:
-- BE A MENTOR: Speak with empathy and authority. Founders are often stressed and need clarity, not just links.
-- DIAGNOSE FIRST: Before jumping to solutions, acknowledge the specific problem they are facing (e.g., "Founding a tech startup without a CTO is a common but high-risk challenge...").
-- STRATEGY THEN RESOURCES: Always explain the 'Why' and 'How' before listing 'What'. Map out a 2-3 step plan.
-- INDIAN CONTEXT: You have deep knowledge of the Indian startup ecosystem, including DPIIT, State Policies, and the nuances of the Indian market.
+- BE A MENTOR: Speak with empathy and authority. 
+- DIAGNOSE FIRST: Acknowledge the specific problem they are facing before jumping to solutions.
+- STRATEGY THEN RESOURCES: Always explain the 'Why' and 'How' before listing 'What'.
 
-GRANTS & SCHEMES (${grants.length} total):
+AVAILABLE RELEVANT RESOURCES (${filteredGrants.length + filteredIncubators.length + filteredInvestors.length} matched):
 ${grantLines}
 
-INCUBATORS (${incubators.length} total):
 ${incLines}
 
-INVESTORS (${investors.length} total):
 ${invLines}
 
 RESPONSE RULES:
 1. ALWAYS start with a brief strategic insight or acknowledgement of their specific situation.
 2. Provide a 3-step actionable "Battle Plan".
-3. Map specific resources (Grants/Incubators/Investors) from the database above to each step of that plan.
-4. If a founder lacks a profile, gently mention how completing it helps you tailor advice to their specific sector and stage.
-5. Use **bold** for emphasis and clear bullet points.
-6. If the database doesn't have a perfect match, provide the "closest best" strategic direction based on ecosystem wisdom.`;
+3. Map specific resources from the list above to each step of that plan.
+4. Use **bold** for emphasis and clear bullet points.
+5. If the provided list is short, supplement with general ecosystem wisdom (DPIIT, Startup India, etc.).`;
 }
 
 export async function POST(req) {
@@ -55,18 +51,29 @@ export async function POST(req) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-        const systemPrompt = buildContext();
+        // --- OPTIMIZE CONTEXT BY FILTERING ---
+        // Only send items that match the user's sector or stage to save tokens
+        const userSectors = [profile?.sector || '', ...(profile?.interests || [])].map(s => s.toLowerCase());
+        const userStage = profile?.stage || 'Idea';
+
+        const filterItems = (list) => {
+            return list.filter(item => {
+                const matchesSector = item.sectors?.some(s => userSectors.includes(s.toLowerCase())) || item.sectors?.includes('All Sectors');
+                const matchesStage = item.stage?.includes(userStage);
+                return matchesSector || matchesStage;
+            }).slice(0, 15); // Limit to top 15 per category to keep prompt slim
+        };
+
+        const filteredGrants = filterItems(grants);
+        const filteredIncubators = filterItems(incubators);
+        const filteredInvestors = filterItems(investors);
+
+        const systemPrompt = buildContext(filteredGrants, filteredIncubators, filteredInvestors);
         const profileCtx = profile && profile.sector
-            ? `\n\nFOUNDER CONTEXT (IMPORTANT):
-You are talking to the founder of "${profile.startupName || 'a stealth startup'}". 
-- Sector: ${profile.sector}
-- Current Stage: ${profile.stage}
-- Team Context: ${profile.teamBackground || 'Not specified'}
-- Geography: ${profile.geography || 'India'}
-- Revenue Status: ${profile.revenue || 'Pre-revenue'}
-- USP/IP: ${profile.isResearchBased ? 'Research/IP-based' : 'Standard'}
-Use this context to justify your advice. For example, if they are research-based, prioritize deep-tech grants.`
-            : '\n\nNOTE: The founder has not completed their profile yet. Give generalized but high-quality strategic advice and encourage them to complete their profile for surgical precision.';
+            ? `\n\nFOUNDER CONTEXT:
+Startup: "${profile.startupName || 'Stealth'}", Sector: ${profile.sector}, Stage: ${profile.stage}, Geography: ${profile.geography}.
+Note: Use this to personalize the plan.`
+            : '\n\nNOTE: Founder profile incomplete. Provide general high-quality strategy.';
 
         const chatHistory = (history || [])
             .filter(m => m.role !== 'system')
