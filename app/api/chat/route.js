@@ -56,15 +56,22 @@ export async function POST(req) {
                     const itemName = (item.name || '').toLowerCase();
                     const itemSectors = (item.sectors || []).map(s => s.toLowerCase());
                     const westernLineKeywords = ['borivali', 'kandivali', 'malad', 'andheri', 'goregaon', 'vile parle', 'bandra'];
+                    const broadWesternKeywords = ['west mumbai', 'western mumbai', 'west bombay', 'western line', 'west line'];
+                    const itemTags = (item.tags || []).map(t => t.toLowerCase());
 
-                    // Ultra Priority: Named Western Line keyword match
+                    // Ultra Priority: Broad "West Mumbai" or "Western Line" mention
+                    if (broadWesternKeywords.some(kw => qLower.includes(kw)) && itemTags.includes('western-line')) {
+                        score += 60;
+                    }
+
+                    // Priority 1: Named Western Line keyword match
                     if (westernLineKeywords.some(kw => qLower.includes(kw) && (itemLoc.includes(kw) || itemName.includes(kw)))) {
                         score += 50;
                     }
 
-                    // Priority 1: Exact location match (e.g. "Mumbai")
+                    // Priority 2: Exact location match (e.g. "Mumbai")
                     if (itemLoc && qLower.includes(itemLoc)) score += 10;
-                    if ((qLower.includes('west line') || qLower.includes('western line')) && itemLoc.includes('mumbai')) score += 5;
+                    if (broadWesternKeywords.some(kw => qLower.includes(kw)) && itemLoc.includes('mumbai')) score += 5;
 
                     // Priority 2: Sector match
                     if (itemSectors.some(s => userSectors.includes(s)) || itemSectors.includes('all sectors')) score += 3;
