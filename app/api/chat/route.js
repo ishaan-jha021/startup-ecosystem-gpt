@@ -86,7 +86,7 @@ Note: Use this to personalize the plan.`
                 "Authorization": `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "zhipuai/glm-4-9b-chat",
+                model: "z-ai/glm5",
                 messages: [
                     { role: "system", content: systemPrompt + profileCtx },
                     { role: "assistant", content: "Ready to help! I have access to the full Indian startup ecosystem database." },
