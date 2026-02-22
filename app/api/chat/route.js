@@ -90,16 +90,19 @@ Note: Use this to personalize the plan.`
                     "Authorization": `Bearer ${apiKey}`
                 },
                 body: JSON.stringify({
-                    model: "z-ai/glm-4", // Use GLM-4 (faster than GLM-5)
+                    model: "deepseek-ai/deepseek-v3.2",
                     messages: [
                         { role: "system", content: systemPrompt + profileCtx },
                         { role: "assistant", content: "Ready to help! I have access to the full Indian startup ecosystem database." },
                         ...chatHistory,
                         { role: "user", content: message }
                     ],
-                    max_tokens: 1024,
-                    temperature: 0.2,
-                    top_p: 0.7
+                    max_tokens: 4096, // Reduced from 8192 for faster Vercel response
+                    temperature: 1,
+                    top_p: 0.95,
+                    extra_body: {
+                        chat_template_kwargs: { thinking: true }
+                    }
                 }),
                 signal: controller.signal
             });
