@@ -4,31 +4,26 @@ import { incubators } from '@/lib/data/incubators';
 import { investors } from '@/lib/data/investors';
 
 function buildContext(filteredGrants, filteredIncubators, filteredInvestors) {
-    // Build strings from ONLY the relevant items to save tokens and stay within rate limits
     const grantLines = filteredGrants.map(g => `- ${g.name}: ${g.funding}`).join('\n');
-    const incLines = filteredIncubators.map(i => `- ${i.name} (${i.location})`).join('\n');
+    const incLines = filteredIncubators.map(i => `- ${i.name} (${i.location}) | Equity: ${i.equity || 'N/A'} | Capacity: ${i.capacity || 'N/A'}`).join('\n');
     const invLines = filteredInvestors.map(i => `- ${i.name}: ${i.chequeSize}`).join('\n');
 
-    return `You are SEGPT, the ultimate AI Mentor for Indian startup founders. Your goal is to provide a strategic roadmap and match founders with the best resources.
+    return `You are SEGPT, the ultimate AI Mentor for Indian founders.
 
-CORE PHILOSOPHY:
-- BE A MENTOR: Speak with empathy and authority. 
-- DIAGNOSE FIRST: Acknowledge the specific problem they are facing before jumping to solutions.
-- STRATEGY THEN RESOURCES: Always explain the 'Why' and 'How' before listing 'What'.
+CORE RULES:
+1. STRICT DATA ENFORCEMENT: ONLY use the resources listed below. If no resources match the specific location (e.g., Bandra, Borivali), DO NOT hallucinate. Instead, tell the user you are expanding the database.
+2. ZERO HUBRIS: Do not recommend out-of-city resources (like Hyderabad hubs for Mumbai requests).
 
-AVAILABLE RELEVANT RESOURCES (${filteredGrants.length + filteredIncubators.length + filteredInvestors.length} matched):
+AVAILABLE RELEVANT RESOURCES:
 ${grantLines}
-
 ${incLines}
-
 ${invLines}
 
-RESPONSE RULES:
-1. ALWAYS start with a brief strategic insight or acknowledgement of their specific situation.
-2. Provide a 3-step actionable "Battle Plan".
-3. Map specific resources from the list above to each step of that plan.
-4. Use **bold** for emphasis and clear bullet points.
-5. If the provided list is short, supplement with general ecosystem wisdom (DPIIT, Startup India, etc.).`;
+4-STEP MENTORSHIP FRAMEWORK:
+1. **Identification**: Match the founder with specific resources from the list above.
+2. **Equity Analysis**: Research/Explain their equity models (e.g., no equity vs % equity).
+3. **Suitability**: Specifically evaluate which places are best for THIS founder's stage/sector.
+4. **Selection Criteria**: Rationale for selection (e.g., seating capacity, conference provisions).`;
 }
 
 export async function POST(req) {
@@ -58,11 +53,18 @@ export async function POST(req) {
                 .map(item => {
                     let score = 0;
                     const itemLoc = (item.location || '').toLowerCase();
+                    const itemName = (item.name || '').toLowerCase();
                     const itemSectors = (item.sectors || []).map(s => s.toLowerCase());
+                    const westernLineKeywords = ['borivali', 'kandivali', 'malad', 'andheri', 'goregaon', 'vile parle', 'bandra'];
 
-                    // Priority 1: Exact location match (e.g. "Andheri", "Mumbai")
+                    // Ultra Priority: Named Western Line keyword match
+                    if (westernLineKeywords.some(kw => qLower.includes(kw) && (itemLoc.includes(kw) || itemName.includes(kw)))) {
+                        score += 50;
+                    }
+
+                    // Priority 1: Exact location match (e.g. "Mumbai")
                     if (itemLoc && qLower.includes(itemLoc)) score += 10;
-                    if (qLower.includes('west line') && itemLoc.includes('mumbai')) score += 5;
+                    if ((qLower.includes('west line') || qLower.includes('western line')) && itemLoc.includes('mumbai')) score += 5;
 
                     // Priority 2: Sector match
                     if (itemSectors.some(s => userSectors.includes(s)) || itemSectors.includes('all sectors')) score += 3;
@@ -74,7 +76,7 @@ export async function POST(req) {
                 })
                 .filter(item => item.score > 0)
                 .sort((a, b) => b.score - a.score)
-                .slice(0, 5); // Pick top 5 most relevant items
+                .slice(0, 10); // Expanded slice to give LLM more local options to choose from
         };
 
         const filteredGrants = filterItems(grants);
