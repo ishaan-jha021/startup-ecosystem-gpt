@@ -1,0 +1,43 @@
+# Product Requirement Document: SEGPT (Startup Ecosystem GPT)
+
+## 1. Executive Summary
+SEGPT is the ultimate AI-powered mentor for Indian startup founders. It simplifies the complex landscape of government grants, private funding, and incubation support through a high-performance, personalized mentorship interface.
+
+## 2. Product Vision
+To empower every Indian founder with a world-class strategic mentor that provides instant, data-backed roadmaps and resource matching.
+
+## 3. Core Features
+### A. AI Mentorship Persona
+- **Diagnostic Logic**: SEGPT uses a "Strategy-First" approach, analyzing the founder's specific problem before recommending resources.
+- **Empathetic Voice**: Designed to speak with authority and empathy, mimicking a human mentor.
+
+### B. Smart Resource Matching
+- **Curated Database**: Access to 500+ Indian grants, 200+ incubators, and top VC/Angel investors.
+- **Dynamic Filtering**: Automatically matches resources based on the user's sector (e.g., FinTech, AgriTech) and startup stage (e.g., Idea, MVP).
+
+### C. Actionable Battle Plans
+- **3-Step Strategy**: Every response includes a clear, actionable roadmap.
+- **Resource Mapping**: Directly links specific matched grants or investors to each step of the plan.
+
+## 4. Technical Architecture
+The system is built for extreme speed and reliability using a "Context-Injected LLM" workflow.
+
+```mermaid
+graph TD
+    User([Founder User]) -->|Ask Question| API[Next.js API Route /api/chat]
+    API -->|Fetch Profile| DB_Context[Founder Profile Data]
+    API -->|Keywords Match| Matching[Resource Matcher]
+    DB_Context -->|Sector/Stage Info| Matching
+    Matching -->|Top 5 Matches| SystemPrompt[Dynamic Context Builder]
+    SystemPrompt -->|Prompt + Data + History| Model[NVIDIA NIM: Llama 3.1-8B]
+    Model -->|Fast Inference < 5s| API
+    API -->|Structured AI Mentor Advice| User
+```
+
+## 5. Technical Highlights
+- **Engine**: Powered by **NVIDIA NIM** (Meta Llama-3.1-8B) for sub-5sec response times.
+- **Infrastructure**: Optimized for **Vercel Serverless** with aggressive performance tuning.
+- **User Experience**: Premium, mobile-first design with a floating navigation dock.
+
+---
+*Document prepared for executive review.*

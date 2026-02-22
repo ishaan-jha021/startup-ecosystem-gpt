@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Send, Bot, User, MessageSquare } from 'lucide-react';
+import { Send, Bot, User, MessageSquare, Mic, MicOff } from 'lucide-react';
 
 const DEFAULT_SUGGESTIONS = [
   'Which grants am I eligible for right now?',
@@ -49,6 +49,8 @@ function ChatClient() {
   const [suggestions, setSuggestions] = useState(DEFAULT_SUGGESTIONS);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const initialized = useRef(false);
@@ -123,6 +125,40 @@ function ChatClient() {
 
     setLoading(false);
     if (!initial) inputRef.current?.focus();
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Browser doesn't support speech recognition.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-IN';
+
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInput(transcript);
+    };
+
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+
+    recognition.start();
+    recognitionRef.current = recognition;
+    setIsListening(true);
   };
 
   const onKey = (e) => {
@@ -201,6 +237,13 @@ function ChatClient() {
               onKeyDown={onKey}
               rows={1}
             />
+            <button
+              className={`advisor__mic ${isListening ? 'advisor__mic--active' : ''}`}
+              onClick={toggleListening}
+              title={isListening ? "Stop listening" : "Voice input"}
+            >
+              {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+            </button>
             <button className="advisor__send" onClick={() => send()} disabled={!input.trim() || loading}>
               <Send size={16} />
             </button>
@@ -333,6 +376,24 @@ export default function AdvisorPage() {
         }
         .advisor__send:hover:not(:disabled) { background: var(--brand); transform: scale(1.05); }
         .advisor__send:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; transform: none; }
+
+        .advisor__mic {
+          width: 40px; height: 40px; border-radius: var(--radius-full);
+          background: var(--gray-100); color: var(--gray-600); cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          transition: all var(--transition-fast); border: none;
+        }
+        .advisor__mic:hover { background: var(--gray-200); color: var(--gray-900); }
+        .advisor__mic--active {
+          background: var(--brand-bg); color: var(--brand);
+          animation: mic-pulse 1.5s infinite;
+        }
+
+        @keyframes mic-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(255, 46, 99, 0.4); }
+          70% { box-shadow: 0 0 0 10px rgba(255, 46, 99, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(255, 46, 99, 0); }
+        }
 
         .disclaimer { margin-top: 12px; }
 
