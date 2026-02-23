@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getRecommendations } from '@/lib/matching';
+import { westernLineData } from '@/lib/data/western_line';
 import { ExternalLink, ChevronDown, ChevronUp, ArrowRight, Sparkles } from 'lucide-react';
 
 function ScoreBadge({ score }) {
@@ -90,10 +92,71 @@ function RecCard({ item }) {
     );
 }
 
-export default function RecommendationsPage() {
+function WesternLineCard({ item }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <div className="rec card">
+            <div className="rec__top">
+                <div className="rec__info">
+                    <span className="badge badge-neutral">{item.type}</span>
+                    <h3>{item.name}</h3>
+                    <p className="rec__provider">{item.area}</p>
+                </div>
+                <ScoreBadge score={parseInt(item.brandValue) * 10 || 50} />
+            </div>
+
+            <div className="rec__tags">
+                <span className="badge badge-success">Equity: {item.equityTaken}</span>
+                <span className="badge badge-brand">Fee: {item.fee}</span>
+                <span className="badge badge-brand">Stage: {item.idealStage}</span>
+            </div>
+
+            <button className="rec__toggle" onClick={() => setOpen(!open)}>
+                {open ? 'Hide details' : 'View details'} {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+
+            {open && (
+                <div className="rec__reasons">
+                    <ul>
+                        <li><strong>Structure:</strong> {item.programStructure}</li>
+                        <li><strong>Investor Access:</strong> {item.investorAccess}</li>
+                        <li><strong>Funding Guarantee:</strong> {item.fundingGuarantee}</li>
+                        <li><strong>Conf Hall Capacity:</strong> {item.confHallCapacity}</li>
+                        <li><strong>Call Booths:</strong> {item.callBooths}</li>
+                        <li><strong>Founder Freedom:</strong> {item.founderFreedom}</li>
+                        <li><strong>Mentors:</strong> {item.externalMentors}</li>
+                        <li><strong>Contact:</strong> {item.contactDetails}</li>
+                    </ul>
+                </div>
+            )}
+
+            {item.googleMapsLink && (
+                <a href={item.googleMapsLink} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-secondary mt-lg">
+                    Google Maps <ExternalLink size={12} />
+                </a>
+            )}
+
+            <style jsx>{`
+        .rec { padding: var(--space-xl); }
+        .rec__top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-lg); margin-bottom: var(--space-md); }
+        .rec__info { flex: 1; }
+        .rec__info h3 { font-size: var(--fs-base); font-weight: 700; margin-top: var(--space-sm); }
+        .rec__provider { font-size: var(--fs-xs); color: var(--gray-500); }
+        .rec__tags { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-md); }
+        .rec__toggle { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--brand); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--font); }
+        .rec__reasons { margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--gray-100); }
+        .rec__reasons ul { list-style: none; padding-left: 0; margin-bottom: var(--space-md); }
+        .rec__reasons li { font-size: var(--fs-sm); color: var(--gray-600); margin-bottom: 4px; }
+      `}</style>
+        </div>
+    );
+}
+
+function RecommendationsPageContent() {
+    const searchParams = useSearchParams();
     const [profile, setProfile] = useState(null);
     const [recs, setRecs] = useState(null);
-    const [tab, setTab] = useState('grants');
+    const [tab, setTab] = useState(searchParams.get('tab') || 'grants');
 
     useEffect(() => {
         try {
@@ -121,6 +184,7 @@ export default function RecommendationsPage() {
         { key: 'grants', label: 'Grants', data: recs?.topGrants },
         { key: 'incubators', label: 'Incubators', data: recs?.topIncubators },
         { key: 'investors', label: 'Investors', data: recs?.topInvestors },
+        { key: 'western-line', label: 'Western Line', data: westernLineData },
     ];
 
     const activeData = tabs.find(t => t.key === tab)?.data || [];
@@ -157,7 +221,9 @@ export default function RecommendationsPage() {
 
                 {/* Results */}
                 <div className="recs__grid">
-                    {activeData.map(item => <RecCard key={item.id} item={item} />)}
+                    {tab === 'western-line'
+                        ? activeData.map(item => <WesternLineCard key={item.id} item={item} />)
+                        : activeData.map(item => <RecCard key={item.id} item={item} />)}
                 </div>
                 {activeData.length === 0 && <p className="text-center text-muted" style={{ padding: 'var(--space-3xl)' }}>No matches found in this category.</p>}
             </div>
@@ -180,5 +246,13 @@ export default function RecommendationsPage() {
         @media (max-width: 768px) { .recs__profile-grid { grid-template-columns: repeat(2, 1fr); } .recs__grid { grid-template-columns: 1fr; } }
       `}</style>
         </div>
+    );
+}
+
+export default function RecommendationsPage() {
+    return (
+        <Suspense fallback={<div className="container-sm" style={{ padding: 'var(--space-3xl) 0', textAlign: 'center' }}>Loading recommendations...</div>}>
+            <RecommendationsPageContent />
+        </Suspense>
     );
 }

@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Home, Compass, Bot, User, Menu, X } from 'lucide-react';
+import { Home, Compass, Bot, User, Menu, X, BookOpen } from 'lucide-react';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/explore', label: 'Explore' },
+  { href: '/directory', label: 'Spaces' },
   { href: '/advisor', label: 'AI Advisor' },
 ];
 
@@ -25,11 +26,13 @@ export default function Navbar() {
   return (
     <nav className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
       <div className="nav__inner container-lg">
-        <Link href="/" className="nav__logo" onClick={() => setMenuOpen(false)}>
-          <span className="nav__logo-text">segpt</span>
-        </Link>
+        <div className="nav__left">
+          <Link href="/" className="nav__logo" onClick={() => setMenuOpen(false)}>
+            <span className="nav__logo-text">segpt</span>
+          </Link>
+        </div>
 
-        <div className={`nav__links ${menuOpen ? 'nav__links--open' : ''}`}>
+        <div className={`nav__center nav__links ${menuOpen ? 'nav__links--open' : ''}`}>
           {NAV_LINKS.map(link => (
             <Link
               key={link.href}
@@ -40,14 +43,16 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+        </div>
+
+        <div className="nav__right">
           <Link href="/onboarding" className="btn btn-primary btn-sm" onClick={() => setMenuOpen(false)}>
             Build Profile
           </Link>
+          <button className="nav__toggle" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
-
-        <button className="nav__toggle" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
       </div>
 
       {/* Mobile Bottom Navigation */}
@@ -59,6 +64,10 @@ export default function Navbar() {
         <Link href="/explore" className={`nav-bottom-item ${pathname === '/explore' ? 'nav-bottom-item--active' : ''}`}>
           <Compass size={20} className="mb-0.5" />
           <span>Explore</span>
+        </Link>
+        <Link href="/directory" className={`nav-bottom-item ${pathname === '/directory' ? 'nav-bottom-item--active' : ''}`}>
+          <BookOpen size={20} className="mb-0.5" />
+          <span>Spaces</span>
         </Link>
         <Link href="/advisor" className={`nav-bottom-item ${pathname === '/advisor' ? 'nav-bottom-item--active' : ''}`}>
           <Bot size={20} className="mb-0.5" />
@@ -92,6 +101,25 @@ export default function Navbar() {
           height: 56px;
         }
 
+        .nav__left, .nav__right {
+          flex: 1;
+          display: flex;
+          align-items: center;
+        }
+
+        .nav__right {
+          justify-content: flex-end;
+          gap: var(--space-sm);
+        }
+
+        .nav__center {
+          flex: 2;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: var(--space-2xl);
+        }
+
         .nav__logo {
           display: flex;
           align-items: center;
@@ -112,9 +140,6 @@ export default function Navbar() {
         }
 
         .nav__links {
-          display: flex;
-          align-items: center;
-          gap: var(--space-2xl);
         }
 
         .nav__link {

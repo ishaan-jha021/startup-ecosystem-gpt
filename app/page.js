@@ -118,6 +118,23 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ---- Western Line Exclusive ---- */}
+      <section className="section section-alt">
+        <div className="container">
+          <div className="exclusive-card">
+            <div className="exclusive-content">
+              <span className="exclusive-badge">New & Exclusive</span>
+              <h2>Western Line Mumbai Directory</h2>
+              <p>We've mapped out 20+ top coworking spaces, accelerators, and incubators exclusively across the Western Line. Compare equity, fee, investor access, and founder freedom.</p>
+              <br />
+              <Link href="/directory" className="btn btn-primary">
+                Explore Western Line <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ---- CTA ---- */}
       <section className="cta-section">
         <div className="container-sm">
@@ -263,6 +280,41 @@ export default function HomePage() {
           max-width: 480px;
           margin: 0 auto var(--space-2xl);
           line-height: var(--lh-relaxed);
+        }
+
+        /* Exclusive Card */
+        .exclusive-card {
+          background: var(--white);
+          border: 1px solid var(--gray-200);
+          border-radius: var(--radius-xl);
+          padding: var(--space-4xl) var(--space-2xl);
+          text-align: center;
+          box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+          margin: var(--space-2xl) 0;
+        }
+        .exclusive-card h2 {
+          font-size: var(--fs-2xl);
+          margin-bottom: var(--space-md);
+          color: var(--gray-900);
+        }
+        .exclusive-card p {
+          font-size: var(--fs-md);
+          color: var(--gray-500);
+          max-width: 600px;
+          margin: 0 auto var(--space-lg);
+          line-height: var(--lh-relaxed);
+        }
+        .exclusive-badge {
+          background: var(--brand);
+          color: white;
+          padding: 4px 12px;
+          border-radius: var(--radius-full);
+          font-size: var(--fs-xs);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          display: inline-block;
+          margin-bottom: var(--space-md);
         }
 
         @media (max-width: 640px) {
