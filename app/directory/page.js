@@ -60,7 +60,7 @@ function DirectoryCard({ item }) {
                 </div>
                 <div className="dir-card__metric">
                     <span>Founder Freedom</span>
-                    <strong>{item.founderFreedom}</strong>
+                    <strong>{item.founderFreedom}/10</strong>
                 </div>
             </div>
 
@@ -72,10 +72,9 @@ function DirectoryCard({ item }) {
                 <div className="dir-card__reasons">
                     <ul>
                         <li><strong>Program Structure:</strong> {item.programStructure}</li>
-                        <li><strong>Investor Access:</strong> {item.investorAccess}</li>
+                        <li><strong>Investor Access:</strong> {item.investorAccess}/10</li>
                         <li><strong>Funding Guarantee:</strong> {item.fundingGuarantee}</li>
                         <li><strong>Conf Hall / Call Booths:</strong> {item.confHallCapacity} / {item.callBooths}</li>
-                        <li><strong>External Mentors:</strong> {item.externalMentors}</li>
                         <li><strong>Contact:</strong> {item.contactDetails}</li>
                     </ul>
                 </div>
