@@ -58,24 +58,19 @@ export default function Navbar() {
       {/* Mobile Bottom Navigation */}
       <div className="nav-bottom-mobile">
         <Link href="/" className={`nav-bottom-item ${pathname === '/' ? 'nav-bottom-item--active' : ''}`}>
-          <Home size={20} className="mb-0.5" />
-          <span>Home</span>
+          <Home size={24} />
         </Link>
         <Link href="/explore" className={`nav-bottom-item ${pathname === '/explore' ? 'nav-bottom-item--active' : ''}`}>
-          <Compass size={20} className="mb-0.5" />
-          <span>Explore</span>
+          <Compass size={24} />
         </Link>
         <Link href="/directory" className={`nav-bottom-item ${pathname === '/directory' ? 'nav-bottom-item--active' : ''}`}>
-          <BookOpen size={20} className="mb-0.5" />
-          <span>Spaces</span>
+          <BookOpen size={24} />
         </Link>
         <Link href="/advisor" className={`nav-bottom-item ${pathname === '/advisor' ? 'nav-bottom-item--active' : ''}`}>
-          <Bot size={20} className="mb-0.5" />
-          <span>Advisor</span>
+          <Bot size={24} />
         </Link>
         <Link href="/onboarding" className={`nav-bottom-item ${pathname === '/onboarding' ? 'nav-bottom-item--active' : ''}`}>
-          <User size={20} className="mb-0.5" />
-          <span>Profile</span>
+          <User size={24} />
         </Link>
       </div>
 
@@ -192,24 +187,17 @@ export default function Navbar() {
 
           .nav-bottom-item {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
             text-decoration: none;
             color: var(--gray-400);
-            font-size: 11px; /* Slightly larger for readability */
-            font-weight: 500;
             transition: color var(--transition-fast), transform 0.2s;
             flex: 1;
-            padding: 4px;
+            padding: 8px 4px;
           }
-          
-          .nav-bottom-item span { margin-top: 2px; }
 
           .nav-bottom-item--active {
             color: var(--brand);
-            font-weight: 600;
           }
           
           .nav-bottom-item--active :global(svg) {
