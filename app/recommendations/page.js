@@ -118,11 +118,12 @@ function WesternLineCard({ item }) {
             {open && (
                 <div className="rec__reasons">
                     <ul>
+                        <li><strong>Experience:</strong> {item.incubationExperience}</li>
+                        <li><strong>Notable Portfolio:</strong> {item.lastFiveIncubations}</li>
                         <li><strong>Structure:</strong> {item.programStructure}</li>
                         <li><strong>Investor Access:</strong> {item.investorAccess}</li>
                         <li><strong>Funding Guarantee:</strong> {item.fundingGuarantee}</li>
                         <li><strong>Conf Hall Capacity:</strong> {item.confHallCapacity}</li>
-                        <li><strong>Call Booths:</strong> {item.callBooths}</li>
                         <li><strong>Founder Freedom:</strong> {item.founderFreedom}</li>
                         <li><strong>Mentors:</strong> {item.externalMentors}</li>
                         <li><strong>Contact:</strong> {item.contactDetails}</li>
@@ -182,9 +183,9 @@ function RecommendationsPageContent() {
 
     const tabs = [
         { key: 'grants', label: 'Grants', data: recs?.topGrants },
-        { key: 'incubators', label: 'Incubators', data: recs?.topIncubators },
+        { key: 'incubators', label: 'General Incubators', data: recs?.topIncubators },
         { key: 'investors', label: 'Investors', data: recs?.topInvestors },
-        { key: 'western-line', label: 'Western Line', data: westernLineData },
+        { key: 'western-line', label: 'West Mumbai Accelerators', data: westernLineData },
     ];
 
     const activeData = tabs.find(t => t.key === tab)?.data || [];

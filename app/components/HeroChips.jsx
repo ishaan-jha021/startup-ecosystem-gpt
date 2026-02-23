@@ -3,20 +3,20 @@
 import { useRouter } from 'next/navigation';
 
 export default function HeroChips() {
-    const router = useRouter();
+  const router = useRouter();
 
-    const handleChipClick = (query) => {
-        router.push(`/advisor?q=${encodeURIComponent(query)}`);
-    };
+  const handleChipClick = (query) => {
+    router.push(`/advisor?q=${encodeURIComponent(query)}`);
+  };
 
-    return (
-        <div className="hero__chips">
-            <button className="chip" onClick={() => handleChipClick("Seed Funds")}>Seed Funds</button>
-            <button className="chip" onClick={() => handleChipClick("State Policies")}>State Policies</button>
-            <button className="chip" onClick={() => handleChipClick("Biotech Incubators")}>Biotech Incubators</button>
-            <button className="chip" onClick={() => handleChipClick("Grants for Women Founders")}>Women Founders</button>
+  return (
+    <div className="hero__chips">
+      <button className="chip" onClick={() => handleChipClick("Incubators in West Mumbai")}>Incubators in West Mumbai</button>
+      <button className="chip" onClick={() => handleChipClick("Accelerators in Andheri")}>Accelerators in Andheri</button>
+      <button className="chip" onClick={() => handleChipClick("Zero Equity Incubators")}>Zero Equity Incubators</button>
+      <button className="chip" onClick={() => handleChipClick("Hardware Accelerators")}>Hardware Accelerators</button>
 
-            <style jsx>{`
+      <style jsx>{`
         .hero__chips {
           display: flex;
           flex-wrap: wrap;
@@ -45,6 +45,6 @@ export default function HeroChips() {
           transform: translateY(-1px);
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 }

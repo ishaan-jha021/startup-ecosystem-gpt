@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 
 const SEARCH_PROMPTS = [
-  "e.g. Govt grants in Maharashtra for AI startups",
-  "Find zero-equity incubators near me...",
-  "What is the Startup India Seed Fund Scheme?",
-  "List active biotech seed funds...",
-  "Are there specific grants for women founders?"
+  "e.g. Incubators in Andheri East",
+  "Find zero-equity incubators near Vile Parle...",
+  "List active startup accelerators in West Mumbai...",
+  "Which incubators in Mumbai don't take equity?"
 ];
 
 export default function AnimatedSearch() {
