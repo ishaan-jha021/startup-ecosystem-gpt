@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Home, Compass, Bot, User, Menu, X, BookOpen } from 'lucide-react';
+import { Home, Compass, Bot, User, Menu, X, MapPin } from 'lucide-react';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -64,7 +64,7 @@ export default function Navbar() {
           <Compass size={24} />
         </Link>
         <Link href="/directory" className={`nav-bottom-item ${pathname === '/directory' ? 'nav-bottom-item--active' : ''}`}>
-          <BookOpen size={24} />
+          <MapPin size={24} />
         </Link>
         <Link href="/advisor" className={`nav-bottom-item ${pathname === '/advisor' ? 'nav-bottom-item--active' : ''}`}>
           <Bot size={24} />
