@@ -16,14 +16,18 @@ export const metadata = {
   },
 };
 
+import ThemeProvider from './components/ThemeProvider';
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <SplashScreen />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+          <SplashScreen />
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Home, Compass, Bot, User, Menu, X, MapPin } from 'lucide-react';
 
+import ThemeToggle from './ThemeToggle';
+
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/explore', label: 'Explore' },
@@ -46,6 +48,7 @@ export default function Navbar() {
         </div>
 
         <div className="nav__right">
+          <ThemeToggle />
           <Link href="/onboarding" className="btn btn-primary btn-sm" onClick={() => setMenuOpen(false)}>
             Build Profile
           </Link>
