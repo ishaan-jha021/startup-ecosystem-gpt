@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { grants } from '@/lib/data/grants';
 import { incubators } from '@/lib/data/incubators';
 import { investors } from '@/lib/data/investors';
+import { westernLineData } from '@/lib/data/western_line';
 
 function buildContext(filteredGrants, filteredIncubators, filteredInvestors) {
     const grantLines = filteredGrants.map(g => `- ${g.name}: ${g.funding}`).join('\n');
@@ -87,7 +88,19 @@ export async function POST(req) {
         };
 
         const filteredGrants = filterItems(grants);
-        const filteredIncubators = filterItems(incubators);
+
+        // Map the curated western line data to fit the generic incubator shape for the AI
+        const mappedWesternLine = westernLineData.map(item => ({
+            ...item,
+            location: item.area,
+            equity: item.equityTaken,
+            capacity: item.confHallCapacity,
+            tags: ['western-line', item.area.toLowerCase()]
+        }));
+
+        const combinedIncubators = [...incubators, ...mappedWesternLine];
+        const filteredIncubators = filterItems(combinedIncubators);
+
         const filteredInvestors = filterItems(investors);
 
         const systemPrompt = buildContext(filteredGrants, filteredIncubators, filteredInvestors);
