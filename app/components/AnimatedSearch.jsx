@@ -97,11 +97,13 @@ export default function AnimatedSearch() {
 
         .hero__search-mock input {
           flex: 1;
-          border: none;
-          background: transparent;
+          border: none !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          background: transparent !important;
           font-size: var(--fs-base);
           color: var(--gray-900);
-          outline: none;
+          outline: none !important;
           padding: 8px 0;
         }
 

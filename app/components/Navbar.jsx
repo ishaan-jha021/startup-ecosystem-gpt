@@ -173,20 +173,20 @@ export default function Navbar() {
           .nav__toggle { display: none !important; }
           .nav__links { display: none !important; }
           
+          /* Modern full-width bottom nav (iOS style) */
           .nav-bottom-mobile {
             display: flex;
             position: fixed;
-            bottom: max(16px, env(safe-area-inset-bottom));
-            left: 16px;
-            right: 16px;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(0,0,0,0.06);
-            border-radius: var(--radius-full);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border-top: 1px solid var(--gray-200);
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.03);
             justify-content: space-around;
-            padding: 8px 12px;
+            padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); /* Safe area padding */
             z-index: 9999;
           }
 
@@ -198,8 +198,8 @@ export default function Navbar() {
             gap: 4px;
             text-decoration: none;
             color: var(--gray-400);
-            font-size: 10px;
-            font-weight: 600;
+            font-size: 11px; /* Slightly larger for readability */
+            font-weight: 500;
             transition: color var(--transition-fast), transform 0.2s;
             flex: 1;
             padding: 4px;
@@ -209,19 +209,27 @@ export default function Navbar() {
 
           .nav-bottom-item--active {
             color: var(--brand);
+            font-weight: 600;
           }
           
           .nav-bottom-item--active :global(svg) {
             transform: translateY(-2px);
           }
+
+          /* Compress the Build Profile button so it fits with the logo without crowding */
+          .nav__right .btn {
+             padding: 6px 10px;
+             font-size: 12px;
+          }
         }
       `}</style>
 
-      {/* Global CSS for pushing the body up on mobile to prevent overlap with floating dock */}
+      {/* Global CSS for pushing the body up on mobile to prevent overlap with the full-width dock */}
       <style jsx global>{`
         @media (max-width: 640px) {
           body {
-            padding-bottom: 90px !important;
+            /* Account for the height of the nav + safe area */
+            padding-bottom: calc(75px + env(safe-area-inset-bottom)) !important;
           }
         }
       `}</style>

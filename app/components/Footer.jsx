@@ -120,6 +120,11 @@ export default function Footer() {
         @media (max-width: 640px) {
           .footer__top { flex-direction: column; gap: var(--space-2xl); }
           .footer__cols { gap: var(--space-2xl); }
+          
+          /* Add extra padding at the bottom of the footer so the copyright text isn't hidden by the mobile tab bar */
+          .footer {
+             padding-bottom: calc(100px + env(safe-area-inset-bottom));
+          }
         }
       `}</style>
     </footer>

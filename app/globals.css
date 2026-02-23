@@ -152,6 +152,16 @@ h6 {
   padding: 0 var(--space-xl);
 }
 
+@media (max-width: 640px) {
+
+  .container,
+  .container-sm,
+  .container-lg {
+    padding: 0 var(--space-lg);
+    /* 16px padding on mobile instead of 24px for more screen real estate */
+  }
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-flex;
