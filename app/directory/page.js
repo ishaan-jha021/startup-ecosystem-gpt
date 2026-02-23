@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { westernLineData } from '@/lib/data/western_line';
-import { ExternalLink, ChevronDown, ChevronUp, Search, MapPin, Building2, TrendingUp } from 'lucide-react';
+import { ExternalLink, ChevronDown, ChevronUp, Search, MapPin, Building2, TrendingUp, Filter } from 'lucide-react';
 import Link from 'next/link';
 import DirectoryAdvisorBot from '../components/DirectoryAdvisorBot';
 
@@ -114,12 +114,17 @@ export default function DirectoryPage() {
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState('All');
     const [equityFilter, setEquityFilter] = useState('All');
+    const [stageFilter, setStageFilter] = useState('All');
+    const [fundingFilter, setFundingFilter] = useState('All');
+    const [showFilters, setShowFilters] = useState(false);
 
     // Currently only Western Line data, prepared for merging others later
     const allData = [...westernLineData];
 
     // Get unique types for filter
     const types = ['All', ...new Set(allData.map(item => item.type))];
+    const stages = ['All', 'Idea / Student', 'Early / Pre-Seed', 'Seed / Growth'];
+    const fundings = ['All', 'Guaranteed / Yes', 'Grants / Subsidized', 'No'];
 
     // Filter logic
     const filteredData = allData.filter(item => {
@@ -131,8 +136,22 @@ export default function DirectoryPage() {
         if (equityFilter === 'Zero Equity') matchesEquity = item.equityTaken === 'NIL';
         if (equityFilter === 'Takes Equity') matchesEquity = item.equityTaken !== 'NIL' && item.equityTaken !== 'Varies';
 
-        return matchesSearch && matchesType && matchesEquity;
+        let matchesStage = true;
+        if (stageFilter === 'Idea / Student') matchesStage = /idea|student/i.test(item.idealStage);
+        if (stageFilter === 'Early / Pre-Seed') matchesStage = /early|pre-seed/i.test(item.idealStage);
+        if (stageFilter === 'Seed / Growth') matchesStage = /seed|growth|series a/i.test(item.idealStage);
+
+        let matchesFunding = true;
+        if (fundingFilter === 'Guaranteed / Yes') matchesFunding = /yes/i.test(item.fundingGuarantee);
+        if (fundingFilter === 'Grants / Subsidized') matchesFunding = /grant|subsidized|credits/i.test(item.fundingGuarantee);
+        if (fundingFilter === 'No') matchesFunding = /no|pitch/i.test(item.fundingGuarantee);
+
+        return matchesSearch && matchesType && matchesEquity && matchesStage && matchesFunding;
     });
+
+    const resetFilters = () => {
+        setSearch(''); setTypeFilter('All'); setEquityFilter('All'); setStageFilter('All'); setFundingFilter('All');
+    };
 
     return (
         <div className="directory-page">
@@ -149,61 +168,97 @@ export default function DirectoryPage() {
 
             <div className="container">
                 <div className="dir-layout">
-                    {/* Sidebar Filters */}
-                    <aside className="dir-sidebar">
-                        <div className="filter-group">
-                            <label><Search size={14} /> Search Name/Area</label>
-                            <input
-                                type="text"
-                                className="input"
-                                placeholder="e.g. Bandra, WeWork..."
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="filter-group">
-                            <label><Building2 size={14} /> Provider Type</label>
-                            <div className="filter-chips">
-                                {types.map(t => (
-                                    <button
-                                        key={t}
-                                        className={`chip ${typeFilter === t ? 'active' : ''}`}
-                                        onClick={() => setTypeFilter(t)}
-                                    >
-                                        {t}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="filter-group">
-                            <label><TrendingUp size={14} /> Equity Requirements</label>
-                            <div className="filter-chips">
-                                {['All', 'Zero Equity', 'Takes Equity'].map(e => (
-                                    <button
-                                        key={e}
-                                        className={`chip ${equityFilter === e ? 'active' : ''}`}
-                                        onClick={() => setEquityFilter(e)}
-                                    >
-                                        {e}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="filter-reset">
-                            <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setTypeFilter('All'); setEquityFilter('All'); }}>
-                                Reset Filters
-                            </button>
-                        </div>
-                    </aside>
-
                     {/* Main Content */}
                     <main className="dir-content">
                         <div className="dir-results-info">
                             <p>Showing <strong>{filteredData.length}</strong> resources</p>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setShowFilters(!showFilters)}>
+                                <Filter size={14} /> {showFilters ? 'Hide Filters' : 'Adjust Filters'}
+                            </button>
                         </div>
+
+                        {showFilters && (
+                            <div className="dir-filters card mb-xl">
+                                <div className="filters-grid">
+                                    <div className="filter-group">
+                                        <label><Search size={14} /> Search Name/Area</label>
+                                        <input
+                                            type="text"
+                                            className="input"
+                                            placeholder="e.g. Bandra, WeWork..."
+                                            value={search}
+                                            onChange={e => setSearch(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="filter-group">
+                                        <label><Building2 size={14} /> Provider Type</label>
+                                        <div className="filter-chips">
+                                            {types.map(t => (
+                                                <button
+                                                    key={t}
+                                                    className={`chip ${typeFilter === t ? 'active' : ''}`}
+                                                    onClick={() => setTypeFilter(t)}
+                                                >
+                                                    {t}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="filter-group">
+                                        <label><TrendingUp size={14} /> Equity Requirements</label>
+                                        <div className="filter-chips">
+                                            {['All', 'Zero Equity', 'Takes Equity'].map(e => (
+                                                <button
+                                                    key={e}
+                                                    className={`chip ${equityFilter === e ? 'active' : ''}`}
+                                                    onClick={() => setEquityFilter(e)}
+                                                >
+                                                    {e}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="filter-group">
+                                        <label>Ideal Stage</label>
+                                        <div className="filter-chips">
+                                            {stages.map(s => (
+                                                <button
+                                                    key={s}
+                                                    className={`chip ${stageFilter === s ? 'active' : ''}`}
+                                                    onClick={() => setStageFilter(s)}
+                                                >
+                                                    {s}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="filter-group">
+                                        <label>Funding Guarantee</label>
+                                        <div className="filter-chips">
+                                            {fundings.map(f => (
+                                                <button
+                                                    key={f}
+                                                    className={`chip ${fundingFilter === f ? 'active' : ''}`}
+                                                    onClick={() => setFundingFilter(f)}
+                                                >
+                                                    {f}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="filter-reset">
+                                    <button className="btn btn-ghost btn-sm" onClick={resetFilters}>
+                                        Reset All Filters
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {filteredData.length > 0 ? (
                             <div className="dir-grid">
@@ -215,7 +270,7 @@ export default function DirectoryPage() {
                             <div className="empty-state card text-center">
                                 <h3>No spaces found</h3>
                                 <p className="text-muted mt-sm mb-lg">We couldn't find any resources matching your filters.</p>
-                                <button className="btn btn-secondary" onClick={() => { setSearch(''); setTypeFilter('All'); setEquityFilter('All'); }}>Clear Filters</button>
+                                <button className="btn btn-secondary" onClick={resetFilters}>Clear Filters</button>
                             </div>
                         )}
                     </main>
@@ -229,29 +284,31 @@ export default function DirectoryPage() {
                 .dir-header { margin-bottom: var(--space-4xl); }
                 .dir-header h1 { font-size: var(--fs-4xl); font-weight: 800; letter-spacing: -0.03em; color: var(--gray-900); }
                 
-                .dir-layout { display: grid; grid-template-columns: 280px 1fr; gap: var(--space-2xl); align-items: start; }
+                .dir-layout { display: flex; flex-direction: column; gap: var(--space-2xl); align-items: stretch; width: 100%; }
                 
-                /* Sidebar */
-                .dir-sidebar { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-xl); padding: var(--space-xl); position: sticky; top: var(--space-2xl); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); }
-                .filter-group { margin-bottom: var(--space-xl); }
+                /* Filters Panel */
+                .dir-filters { padding: var(--space-xl); border: 1px solid var(--gray-200); border-radius: var(--radius-xl); background: var(--white); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); }
+                .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-xl); margin-bottom: var(--space-xl); }
+                
                 .filter-group label { display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-sm); text-transform: uppercase; letter-spacing: 0.05em; }
                 .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
                 .chip { padding: 6px 12px; font-size: var(--fs-sm); border: 1px solid var(--gray-200); background: var(--white); border-radius: var(--radius-full); cursor: pointer; color: var(--gray-600); font-family: var(--font); transition: all 0.2s; }
                 .chip:hover { border-color: var(--gray-300); background: var(--gray-50); }
                 .chip.active { background: var(--brand); color: white; border-color: var(--brand); font-weight: 500; }
-                .filter-reset { padding-top: var(--space-md); border-top: 1px solid var(--gray-100); display: flex; justify-content: center; }
+                .filter-reset { padding-top: var(--space-lg); border-top: 1px solid var(--gray-100); display: flex; justify-content: center; }
 
                 /* Main */
-                .dir-results-info { margin-bottom: var(--space-xl); font-size: var(--fs-sm); color: var(--gray-500); }
+                .dir-results-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl); font-size: var(--fs-sm); color: var(--gray-500); }
                 .dir-results-info strong { color: var(--gray-900); }
+                .dir-results-info button { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+                
                 .dir-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-xl); }
                 
                 .empty-state { padding: var(--space-4xl) var(--space-2xl); }
 
                 @media (max-width: 900px) {
-                    .dir-layout { grid-template-columns: 1fr; }
-                    .dir-sidebar { position: static; }
                     .dir-grid { grid-template-columns: 1fr; }
+                    .filters-grid { grid-template-columns: 1fr; }
                 }
             `}</style>
         </div>
