@@ -261,7 +261,6 @@ export default function DirectoryPage() {
                 </div>
             </div>
 
-            <DirectoryAdvisorBot />
 
             <style jsx>{`
                 .directory-page { padding: var(--space-4xl) 0; min-height: 100vh; background: var(--gray-50); }
