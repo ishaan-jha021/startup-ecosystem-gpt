@@ -124,8 +124,8 @@ export default function HomePage() {
           <div className="exclusive-card">
             <div className="exclusive-content">
               <span className="exclusive-badge">New & Exclusive</span>
-              <h2>Western Line Mumbai Directory</h2>
-              <p>We've mapped out 20+ top coworking spaces, accelerators, and incubators exclusively across the Western Line. Compare equity, fee, investor access, and founder freedom.</p>
+              <h2>Mumbai Ecosystem Directory</h2>
+              <p>We've mapped out 50+ top coworking spaces, accelerators, and incubators across Mumbai (West, East, Central, and South). Compare equity models, fees, and funding guarantees in one click.</p>
               <br />
               <Link href="/directory" className="btn btn-primary">
                 Explore Western Line <ArrowRight size={16} />

@@ -53,8 +53,10 @@ export async function POST(req) {
             return list
                 .map(item => {
                     let score = 0;
-                    const itemLoc = (item.location || '').toLowerCase();
+                    const itemLoc = (item.area || item.location || '').toLowerCase();
                     const itemName = (item.name || '').toLowerCase();
+                    const itemSubRegion = (item.subRegion || '').toLowerCase();
+                    const itemBroadType = (item.broadType || '').toLowerCase();
                     const itemSectors = (item.sectors || []).map(s => s.toLowerCase());
                     const westernLineKeywords = ['borivali', 'kandivali', 'malad', 'andheri', 'goregaon', 'vile parle', 'bandra'];
                     const broadWesternKeywords = ['west mumbai', 'western mumbai', 'west bombay', 'western line', 'west line'];
@@ -65,14 +67,24 @@ export async function POST(req) {
                         score += 60;
                     }
 
+                    // Ultra Priority: Sub-Region match
+                    if (itemSubRegion && qLower.includes(itemSubRegion.replace(' mumbai', '').toLowerCase())) {
+                        score += 55;
+                    }
+
                     // Priority 1: Named Western Line keyword match
                     if (westernLineKeywords.some(kw => qLower.includes(kw) && (itemLoc.includes(kw) || itemName.includes(kw)))) {
                         score += 50;
                     }
 
+                    // Priority: Broad Type match (Private/Government)
+                    if (itemBroadType && qLower.includes(itemBroadType.split(' ')[0].toLowerCase())) {
+                        score += 40;
+                    }
+
                     // Priority 2: Exact location match (e.g. "Mumbai")
                     if (itemLoc && qLower.includes(itemLoc)) score += 10;
-                    if (broadWesternKeywords.some(kw => qLower.includes(kw)) && itemLoc.includes('mumbai')) score += 5;
+                    if (broadWesternKeywords.some(kw => qLower.includes(kw)) && (itemLoc.includes('mumbai') || itemSubRegion.includes('mumbai'))) score += 5;
 
                     // Priority 2: Sector match
                     if (itemSectors.some(s => userSectors.includes(s)) || itemSectors.includes('all sectors')) score += 3;

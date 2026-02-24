@@ -111,45 +111,33 @@ function DirectoryCard({ item }) {
 
 export default function DirectoryPage() {
     const [search, setSearch] = useState('');
-    const [typeFilter, setTypeFilter] = useState('All');
-    const [equityFilter, setEquityFilter] = useState('All');
-    const [stageFilter, setStageFilter] = useState('All');
-    const [fundingFilter, setFundingFilter] = useState('All');
+    const [regionFilter, setRegionFilter] = useState('All');
+    const [broadTypeFilter, setBroadTypeFilter] = useState('All');
+    const [equityCategoryFilter, setEquityCategoryFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
 
     // Currently only Western Line data, prepared for merging others later
     const allData = [...westernLineData];
 
-    // Get unique types for filter
-    const types = ['All', ...new Set(allData.map(item => item.type))];
-    const stages = ['All', 'Idea / Student', 'Early / Pre-Seed', 'Seed / Growth'];
-    const fundings = ['All', 'Guaranteed / Yes', 'Grants / Subsidized', 'No'];
+    // Simplified categories for faster discovery
+    const regions = ['All', 'West Mumbai', 'East Mumbai', 'South Mumbai', 'Central Mumbai', 'Navi Mumbai', 'Thane / MMR'];
+    const broadTypes = ['All', 'Private', 'Government / Academic'];
+    const equityCategories = ['All', 'Zero Equity', 'Equity Taken'];
 
     // Filter logic
     const filteredData = allData.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
             item.area.toLowerCase().includes(search.toLowerCase());
-        const matchesType = typeFilter === 'All' || item.type === typeFilter;
 
-        let matchesEquity = true;
-        if (equityFilter === 'Zero Equity') matchesEquity = item.equityTaken === 'NIL';
-        if (equityFilter === 'Takes Equity') matchesEquity = item.equityTaken !== 'NIL' && item.equityTaken !== 'Varies';
+        const matchesRegion = regionFilter === 'All' || item.subRegion === regionFilter;
+        const matchesBroadType = broadTypeFilter === 'All' || item.broadType === broadTypeFilter;
+        const matchesEquity = equityCategoryFilter === 'All' || item.equityCategory === equityCategoryFilter;
 
-        let matchesStage = true;
-        if (stageFilter === 'Idea / Student') matchesStage = /idea|student/i.test(item.idealStage);
-        if (stageFilter === 'Early / Pre-Seed') matchesStage = /early|pre-seed/i.test(item.idealStage);
-        if (stageFilter === 'Seed / Growth') matchesStage = /seed|growth|series a/i.test(item.idealStage);
-
-        let matchesFunding = true;
-        if (fundingFilter === 'Guaranteed / Yes') matchesFunding = /yes/i.test(item.fundingGuarantee);
-        if (fundingFilter === 'Grants / Subsidized') matchesFunding = /grant|subsidized|credits/i.test(item.fundingGuarantee);
-        if (fundingFilter === 'No') matchesFunding = /no|pitch/i.test(item.fundingGuarantee);
-
-        return matchesSearch && matchesType && matchesEquity && matchesStage && matchesFunding;
+        return matchesSearch && matchesRegion && matchesBroadType && matchesEquity;
     });
 
     const resetFilters = () => {
-        setSearch(''); setTypeFilter('All'); setEquityFilter('All'); setStageFilter('All'); setFundingFilter('All');
+        setSearch(''); setRegionFilter('All'); setBroadTypeFilter('All'); setEquityCategoryFilter('All');
     };
 
     return (
@@ -191,60 +179,45 @@ export default function DirectoryPage() {
                                     </div>
 
                                     <div className="filter-group">
-                                        <label><Building2 size={14} /> Provider Type</label>
+                                        <label><MapPin size={14} /> Mumbai Sub-Regions</label>
                                         <div className="filter-chips">
-                                            {types.map(t => (
+                                            {regions.map(r => (
                                                 <button
-                                                    key={t}
-                                                    className={`chip ${typeFilter === t ? 'active' : ''}`}
-                                                    onClick={() => setTypeFilter(t)}
+                                                    key={r}
+                                                    className={`chip ${regionFilter === r ? 'active' : ''}`}
+                                                    onClick={() => setRegionFilter(r)}
                                                 >
-                                                    {t}
+                                                    {r}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
                                     <div className="filter-group">
-                                        <label><TrendingUp size={14} /> Equity Requirements</label>
+                                        <label><Building2 size={14} /> Organization Type</label>
                                         <div className="filter-chips">
-                                            {['All', 'Zero Equity', 'Takes Equity'].map(e => (
+                                            {broadTypes.map(bt => (
                                                 <button
-                                                    key={e}
-                                                    className={`chip ${equityFilter === e ? 'active' : ''}`}
-                                                    onClick={() => setEquityFilter(e)}
+                                                    key={bt}
+                                                    className={`chip ${broadTypeFilter === bt ? 'active' : ''}`}
+                                                    onClick={() => setBroadTypeFilter(bt)}
                                                 >
-                                                    {e}
+                                                    {bt}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
                                     <div className="filter-group">
-                                        <label>Ideal Stage</label>
+                                        <label><TrendingUp size={14} /> Equity Participation</label>
                                         <div className="filter-chips">
-                                            {stages.map(s => (
+                                            {equityCategories.map(ec => (
                                                 <button
-                                                    key={s}
-                                                    className={`chip ${stageFilter === s ? 'active' : ''}`}
-                                                    onClick={() => setStageFilter(s)}
+                                                    key={ec}
+                                                    className={`chip ${equityCategoryFilter === ec ? 'active' : ''}`}
+                                                    onClick={() => setEquityCategoryFilter(ec)}
                                                 >
-                                                    {s}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="filter-group">
-                                        <label>Funding Guarantee</label>
-                                        <div className="filter-chips">
-                                            {fundings.map(f => (
-                                                <button
-                                                    key={f}
-                                                    className={`chip ${fundingFilter === f ? 'active' : ''}`}
-                                                    onClick={() => setFundingFilter(f)}
-                                                >
-                                                    {f}
+                                                    {ec}
                                                 </button>
                                             ))}
                                         </div>

@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Search, Mic } from 'lucide-react';
 
 const SEARCH_PROMPTS = [
-  "e.g. Incubators in Andheri East",
-  "Find zero-equity incubators near Vile Parle...",
-  "List active startup accelerators in West Mumbai...",
-  "Which incubators in Mumbai don't take equity?"
+  "e.g. Incubators in Andheri West",
+  "Find zero-equity accelerators in Mumbai...",
+  "List private coworking spaces in South Mumbai...",
+  "Government backed incubators in West Mumbai"
 ];
 
 export default function AnimatedSearch() {
