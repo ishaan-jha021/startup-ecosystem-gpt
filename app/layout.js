@@ -9,6 +9,7 @@ export const metadata = {
   description:
     'Discover the right grants, incubators, accelerators, and investors for your startup. AI-powered recommendations matched to your stage, sector, and geography.',
   keywords: 'startup, grants, incubators, accelerators, investors, AI advisor, Startup India',
+  buildId: '2026-02-24T22:37:30',
   openGraph: {
     title: 'SEGPT — Startup Ecosystem GPT',
     description:
