@@ -4,32 +4,6 @@ import { useState, useMemo } from 'react';
 import { investors } from '@/lib/data/investors';
 import { ExternalLink, ChevronDown, ChevronUp, Search, MapPin, Building2, TrendingUp, Filter } from 'lucide-react';
 
-function ScoreBadge({ score }) {
-    let color = 'var(--gray-400)';
-    if (score >= 70) color = 'var(--success)';
-    else if (score >= 40) color = 'var(--brand)';
-    else if (score >= 20) color = 'var(--warning)';
-    return (
-        <span className="score" style={{ color, borderColor: color }}>
-            {score}
-            <style jsx>{`
-        .score {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          border-radius: var(--radius-full);
-          border: 2px solid;
-          font-size: var(--fs-sm);
-          font-weight: 700;
-          flex-shrink: 0;
-        }
-      `}</style>
-        </span>
-    );
-}
-
 function ResourceCard({ item }) {
     const [open, setOpen] = useState(false);
     return (
@@ -40,7 +14,6 @@ function ResourceCard({ item }) {
                     <h3>{item.name}</h3>
                     <p className="dir-card__location"><MapPin size={12} /> {item.location}</p>
                 </div>
-                <ScoreBadge score={80} />
             </div>
 
             <div className="dir-card__grid">
@@ -107,6 +80,11 @@ function ResourceCard({ item }) {
         
         .dir-card__links { margin-top: auto; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--gray-100); padding-top: var(--space-lg); }
         .dir-card__link { justify-content: center; width: 100%; border-radius: var(--radius-full); }
+
+        @media (max-width: 640px) {
+            .dir-card { padding: var(--space-lg); }
+            .dir-card__grid { padding: var(--space-sm); gap: var(--space-sm); }
+        }
       `}</style>
         </div>
     );
@@ -241,6 +219,11 @@ export default function InvestorsPage() {
 
                 @media (max-width: 900px) {
                     .dir-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 640px) {
+                    .directory-page { padding: var(--space-xl) 0; }
+                    .dir-header h1 { font-size: var(--fs-3xl); }
                 }
             `}</style>
         </div>

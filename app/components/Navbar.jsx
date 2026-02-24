@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Home, Compass, Bot, User, Menu, X, MapPin } from 'lucide-react';
+import { Menu, X, Home, Compass, MapPin, User, Bot, TrendingUp } from 'lucide-react';
 
 import ThemeToggle from './ThemeToggle';
 
@@ -63,11 +63,11 @@ export default function Navbar() {
         <Link href="/" className={`nav-bottom-item ${pathname === '/' ? 'nav-bottom-item--active' : ''}`}>
           <Home size={24} />
         </Link>
-        <Link href="/explore" className={`nav-bottom-item ${pathname === '/explore' ? 'nav-bottom-item--active' : ''}`}>
+        <Link href="/grants" className={`nav-bottom-item ${pathname === '/grants' ? 'nav-bottom-item--active' : ''}`}>
           <Compass size={24} />
         </Link>
-        <Link href="/directory" className={`nav-bottom-item ${pathname === '/directory' ? 'nav-bottom-item--active' : ''}`}>
-          <MapPin size={24} />
+        <Link href="/investors" className={`nav-bottom-item ${pathname === '/investors' ? 'nav-bottom-item--active' : ''}`}>
+          <TrendingUp size={24} />
         </Link>
         <Link href="/directory" className={`nav-bottom-item ${pathname === '/directory' ? 'nav-bottom-item--active' : ''}`}>
           <MapPin size={24} />

@@ -306,7 +306,7 @@ export default function DirectoryAdvisorBot() {
                         max-height: calc(100dvh - 100px);
                     }
                     .bot-fab-container {
-                        bottom: 16px;
+                        bottom: 88px;
                         right: 16px;
                     }
                     .bot-input-area input {
