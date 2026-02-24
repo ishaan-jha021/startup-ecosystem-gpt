@@ -2,148 +2,247 @@
 
 import { useState, useMemo } from 'react';
 import { investors } from '@/lib/data/investors';
-import { Search, ExternalLink, ChevronDown, ChevronUp, Filter } from 'lucide-react';
+import { ExternalLink, ChevronDown, ChevronUp, Search, MapPin, Building2, TrendingUp, Filter } from 'lucide-react';
 
-const SECTORS = ['All', 'AgriTech', 'FinTech', 'HealthTech', 'EdTech', 'DeepTech', 'AI/ML', 'SaaS', 'CleanTech', 'BioTech', 'Consumer Tech', 'IoT', 'D2C'];
-const STAGES = ['All', 'Idea', 'MVP', 'Revenue', 'Scaling'];
+function ScoreBadge({ score }) {
+    let color = 'var(--gray-400)';
+    if (score >= 70) color = 'var(--success)';
+    else if (score >= 40) color = 'var(--brand)';
+    else if (score >= 20) color = 'var(--warning)';
+    return (
+        <span className="score" style={{ color, borderColor: color }}>
+            {score}
+            <style jsx>{`
+        .score {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: var(--radius-full);
+          border: 2px solid;
+          font-size: var(--fs-sm);
+          font-weight: 700;
+          flex-shrink: 0;
+        }
+      `}</style>
+        </span>
+    );
+}
 
 function ResourceCard({ item }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className="rc card">
-            <div className="rc__head">
-                <div>
+        <div className="dir-card card">
+            <div className="dir-card__top">
+                <div className="dir-card__info">
                     <span className="badge badge-neutral">Investor</span>
-                    {item.chequeSize && <span className="badge badge-success">{item.chequeSize}</span>}
+                    <h3>{item.name}</h3>
+                    <p className="dir-card__location"><MapPin size={12} /> {item.location}</p>
                 </div>
-            </div>
-            <h3 className="rc__name">{item.name}</h3>
-            <p className="rc__desc">{item.description}</p>
-            <div className="rc__tags">
-                {(item.stage || []).map(s => <span key={s} className="badge badge-brand">{s}</span>)}
-                {(item.sectors || []).slice(0, 3).map(s => <span key={s} className="badge badge-neutral">{s}</span>)}
+                <ScoreBadge score={80} />
             </div>
 
-            <button className="rc__toggle" onClick={() => setOpen(!open)}>
-                {open ? 'Less' : 'Details'} {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            <div className="dir-card__grid">
+                <div className="dir-card__metric">
+                    <span>Typical Cheque</span>
+                    <strong>{item.chequeSize}</strong>
+                </div>
+                <div className="dir-card__metric">
+                    <span>Stages</span>
+                    <strong>{(item.stage || []).join(', ')}</strong>
+                </div>
+                <div className="dir-card__metric">
+                    <span>Typical Equity</span>
+                    <strong>{item.equity}</strong>
+                </div>
+                <div className="dir-card__metric">
+                    <span>Investment Style</span>
+                    <strong>{item.type || 'Private Equity'}</strong>
+                </div>
+            </div>
+
+            <button className="dir-card__toggle" onClick={() => setOpen(!open)}>
+                {open ? 'Hide details' : 'View all details'} {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
 
             {open && (
-                <div className="rc__details">
-                    {item.portfolio && (
-                        <div className="rc__section">
-                            <h4>Notable Portfolio</h4>
-                            <p className="text-sm text-muted">{item.portfolio.join(', ')}</p>
-                        </div>
-                    )}
-                    <div className="rc__meta">
-                        {item.location && <div><span>Location</span><strong>{item.location}</strong></div>}
-                        {item.equity && <div><span>Typical Equity</span><strong>{item.equity}</strong></div>}
-                    </div>
+                <div className="dir-card__reasons">
+                    <ul>
+                        <li><strong>About:</strong> {item.description}</li>
+                        {item.portfolio && <li><strong>Notable Portfolio:</strong> {item.portfolio.slice(0, 4).join(', ')}</li>}
+                        {item.sectors && <li><strong>Focus Sectors:</strong> {item.sectors.slice(0, 3).join(', ')}</li>}
+                    </ul>
                 </div>
             )}
 
-            {item.website && (
-                <a href={item.website} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-secondary mt-lg">
-                    Visit website <ExternalLink size={12} />
+            <div className="dir-card__links">
+                <a
+                    href={item.website || '#'}
+                    target={item.website ? "_blank" : "_self"}
+                    rel="noopener noreferrer"
+                    className="btn btn-sm btn-primary dir-card__link"
+                    onClick={(e) => { if (!item.website) e.preventDefault(); }}
+                >
+                    Visit Website <ExternalLink size={12} />
                 </a>
-            )}
+            </div>
 
             <style jsx>{`
-        .rc { padding: var(--space-xl); }
-        .rc__head { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); }
-        .rc__head > div { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
-        .rc__name { font-size: var(--fs-base); font-weight: 700; margin-bottom: 2px; }
-        .rc__desc { font-size: var(--fs-sm); color: var(--gray-600); line-height: var(--lh-relaxed); margin-bottom: var(--space-md); }
-        .rc__tags { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-md); }
-        .rc__toggle { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--brand); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--font); }
-        .rc__details { margin-top: var(--space-lg); padding-top: var(--space-lg); border-top: 1px solid var(--gray-100); }
-        .rc__section { margin-bottom: var(--space-lg); }
-        .rc__section h4 { font-size: var(--fs-xs); font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: var(--space-sm); }
-        .rc__meta { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
-        .rc__meta span { font-size: var(--fs-xs); color: var(--gray-400); display: block; }
-        .rc__meta strong { font-size: var(--fs-sm); color: var(--gray-800); font-weight: 600; }
+        .dir-card { padding: var(--space-xl); height: 100%; display: flex; flex-direction: column; }
+        .dir-card__top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-lg); margin-bottom: var(--space-md); }
+        .dir-card__info h3 { font-size: var(--fs-lg); font-weight: 700; margin: var(--space-sm) 0 4px; color: var(--gray-900); }
+        .dir-card__location { display: flex; align-items: center; gap: 4px; font-size: var(--fs-sm); color: var(--gray-500); }
+        
+        .dir-card__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-lg); padding: var(--space-md); background: var(--gray-50); border-radius: var(--radius-md); }
+        .dir-card__metric { display: flex; flex-direction: column; gap: 2px; }
+        .dir-card__metric span { font-size: var(--fs-xs); color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+        .dir-card__metric strong { font-size: var(--fs-sm); color: var(--gray-900); }
+        
+        .dir-card__toggle { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-sm); font-weight: 600; color: var(--brand); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--font); margin-bottom: var(--space-md); }
+        .dir-card__reasons { margin-bottom: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--gray-100); }
+        .dir-card__reasons ul { list-style: none; padding-left: 0; }
+        .dir-card__reasons li { font-size: var(--fs-sm); color: var(--gray-600); margin-bottom: 8px; display: flex; flex-direction: column; border-bottom: 1px dashed var(--gray-200); padding-bottom: 4px; }
+        .dir-card__reasons li strong { color: var(--gray-900); margin-bottom: 2px; }
+        
+        .dir-card__links { margin-top: auto; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--gray-100); padding-top: var(--space-lg); }
+        .dir-card__link { justify-content: center; width: 100%; border-radius: var(--radius-full); }
       `}</style>
         </div>
     );
 }
 
 export default function InvestorsPage() {
-    const [q, setQ] = useState('');
-    const [sector, setSector] = useState('All');
-    const [stage, setStage] = useState('All');
+    const [search, setSearch] = useState('');
+    const [sectorFilter, setSectorFilter] = useState('All');
+    const [stageFilter, setStageFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
 
-    const filtered = useMemo(() => {
+    const sectors = ['All', 'AgriTech', 'FinTech', 'HealthTech', 'EdTech', 'DeepTech', 'AI/ML', 'SaaS', 'CleanTech', 'BioTech', 'Consumer Tech', 'IoT', 'D2C'];
+    const stages = ['All', 'Idea', 'MVP', 'Revenue', 'Scaling'];
+
+    const filteredData = useMemo(() => {
         return investors.filter(item => {
-            if (q) {
-                const haystack = `${item.name} ${item.description} ${(item.tags || []).join(' ')}`.toLowerCase();
-                if (!haystack.includes(q.toLowerCase())) return false;
-            }
-            if (sector !== 'All') {
-                const s = item.sectors || [];
-                if (!s.includes('All Sectors') && !s.some(x => x.toLowerCase().includes(sector.toLowerCase()))) return false;
-            }
-            if (stage !== 'All') {
-                const s = item.stage || [];
-                if (!s.some(x => x.toLowerCase() === stage.toLowerCase())) return false;
-            }
-            return true;
+            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
+                (item.description || '').toLowerCase().includes(search.toLowerCase());
+
+            const matchesSector = sectorFilter === 'All' ||
+                (item.sectors || []).includes('All Sectors') ||
+                (item.sectors || []).some(x => x.toLowerCase().includes(sectorFilter.toLowerCase()));
+
+            const matchesStage = stageFilter === 'All' ||
+                (item.stage || []).some(x => x.toLowerCase() === stageFilter.toLowerCase());
+
+            return matchesSearch && matchesSector && matchesStage;
         });
-    }, [q, sector, stage]);
+    }, [search, sectorFilter, stageFilter]);
+
+    const resetFilters = () => {
+        setSearch(''); setSectorFilter('All'); setStageFilter('All');
+    };
 
     return (
-        <div className="explore">
-            <div className="container">
-                <div className="explore__header">
+        <div className="directory-page">
+            <header className="dir-header text-center">
+                <div className="container-sm">
+                    <span className="badge badge-brand mb-md">Venture Funding</span>
                     <h1>Startup Investors</h1>
-                    <p>Find VCs, Angel Networks, and Private Investors matched to your startup's sector and stage.</p>
+                    <p className="text-muted text-lg mt-sm mb-xl">
+                        Find VCs, Angel Networks, and Private Investors matched to your sector and growth stage.
+                    </p>
                 </div>
+            </header>
 
-                <div className="explore__toolbar">
-                    <div className="explore__search">
-                        <Search size={16} />
-                        <input type="text" placeholder="Search investors..." value={q} onChange={e => setQ(e.target.value)} />
-                    </div>
-                    <button className="btn btn-sm btn-secondary" onClick={() => setShowFilters(!showFilters)}>
-                        <Filter size={14} /> Filters
-                    </button>
-                </div>
-
-                {showFilters && (
-                    <div className="explore__filters card">
-                        <div className="filter-group">
-                            <label>Sector</label>
-                            <div className="chip-group">{SECTORS.map(s => <button key={s} className={`chip ${sector === s ? 'active' : ''}`} onClick={() => setSector(s)}>{s}</button>)}</div>
+            <div className="container">
+                <div className="dir-layout">
+                    <main className="dir-content">
+                        <div className="dir-results-info">
+                            <p>Showing <strong>{filteredData.length}</strong> investors</p>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setShowFilters(!showFilters)}>
+                                <Filter size={14} /> {showFilters ? 'Hide Filters' : 'Adjust Filters'}
+                            </button>
                         </div>
-                        <div className="filter-group">
-                            <label>Stage</label>
-                            <div className="chip-group">{STAGES.map(s => <button key={s} className={`chip ${stage === s ? 'active' : ''}`} onClick={() => setStage(s)}>{s}</button>)}</div>
-                        </div>
-                    </div>
-                )}
 
-                <p className="text-sm text-muted mb-lg">{filtered.length} result{filtered.length !== 1 ? 's' : ''}</p>
-                <div className="explore__grid">
-                    {filtered.map(item => <ResourceCard key={item.id} item={item} />)}
+                        {showFilters && (
+                            <div className="dir-filters card mb-xl">
+                                <div className="filters-grid">
+                                    <div className="filter-group">
+                                        <label><Search size={14} /> Search Investors</label>
+                                        <input
+                                            type="text"
+                                            className="input"
+                                            placeholder="e.g. Sequoia, Accel..."
+                                            value={search}
+                                            onChange={e => setSearch(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="filter-group">
+                                        <label><Building2 size={14} /> Sector</label>
+                                        <div className="filter-chips">
+                                            {sectors.map(s => (
+                                                <button key={s} className={`chip ${sectorFilter === s ? 'active' : ''}`} onClick={() => setSectorFilter(s)}>{s}</button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="filter-group">
+                                        <label><TrendingUp size={14} /> Ideal Stage</label>
+                                        <div className="filter-chips">
+                                            {stages.map(s => (
+                                                <button key={s} className={`chip ${stageFilter === s ? 'active' : ''}`} onClick={() => setStageFilter(s)}>{s}</button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="filter-reset">
+                                    <button className="btn btn-ghost btn-sm" onClick={resetFilters}>Reset All Filters</button>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="dir-grid">
+                            {filteredData.map(item => <ResourceCard key={item.id} item={item} />)}
+                        </div>
+                        {filteredData.length === 0 && (
+                            <div className="empty-state card text-center">
+                                <h3>No investors found</h3>
+                                <p className="text-muted mt-sm mb-lg">We couldn't find any resources matching your filters.</p>
+                                <button className="btn btn-secondary" onClick={resetFilters}>Clear Filters</button>
+                            </div>
+                        )}
+                    </main>
                 </div>
-                {filtered.length === 0 && <p className="text-center text-muted" style={{ padding: 'var(--space-4xl)' }}>No investors match your filters.</p>}
             </div>
 
             <style jsx>{`
-        .explore { padding: var(--space-3xl) 0 var(--space-4xl); min-height: 100vh; }
-        .explore__header { margin-bottom: var(--space-2xl); }
-        .explore__header h1 { font-size: var(--fs-2xl); margin-bottom: var(--space-sm); }
-        .explore__header p { color: var(--gray-500); font-size: var(--fs-md); }
-        .explore__toolbar { display: flex; gap: var(--space-md); margin-bottom: var(--space-lg); }
-        .explore__search { flex: 1; display: flex; align-items: center; gap: var(--space-sm); border: 1px solid var(--gray-300); border-radius: var(--radius-full); padding: 8px 16px; color: var(--gray-400); }
-        .explore__search input { flex: 1; border: none; outline: none; font-size: var(--fs-sm); background: none; color: var(--gray-900); font-family: var(--font); }
-        .explore__filters { padding: var(--space-xl); margin-bottom: var(--space-lg); }
-        .filter-group { margin-bottom: var(--space-lg); }
-        .filter-group:last-child { margin-bottom: 0; }
-        .explore__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); }
-        @media (max-width: 768px) { .explore__grid { grid-template-columns: 1fr; } .explore__toolbar { flex-direction: column; } }
-      `}</style>
+                .directory-page { padding: var(--space-4xl) 0; min-height: 100vh; background: var(--gray-50); }
+                .dir-header { margin-bottom: var(--space-4xl); }
+                .dir-header h1 { font-size: var(--fs-4xl); font-weight: 800; letter-spacing: -0.03em; color: var(--gray-900); }
+                
+                .dir-layout { display: flex; flex-direction: column; gap: var(--space-2xl); align-items: stretch; width: 100%; }
+                
+                .dir-filters { padding: var(--space-xl); border: 1px solid var(--gray-200); border-radius: var(--radius-xl); background: var(--white); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); }
+                .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-xl); margin-bottom: var(--space-xl); }
+                
+                .filter-group label { display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-sm); text-transform: uppercase; letter-spacing: 0.05em; }
+                .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+                .chip { padding: 6px 12px; font-size: var(--fs-sm); border: 1px solid var(--gray-200); background: var(--white); border-radius: var(--radius-full); cursor: pointer; color: var(--gray-600); font-family: var(--font); transition: all 0.2s; }
+                .chip:hover { border-color: var(--gray-300); background: var(--gray-50); }
+                .chip.active { background: var(--brand); color: white; border-color: var(--brand); font-weight: 500; }
+                .filter-reset { padding-top: var(--space-lg); border-top: 1px solid var(--gray-100); display: flex; justify-content: center; }
+
+                .dir-results-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl); font-size: var(--fs-sm); color: var(--gray-500); }
+                .dir-results-info strong { color: var(--gray-900); }
+                .dir-results-info button { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+                
+                .dir-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: var(--space-xl); }
+                .empty-state { padding: var(--space-4xl) var(--space-2xl); }
+
+                @media (max-width: 900px) {
+                    .dir-grid { grid-template-columns: 1fr; }
+                }
+            `}</style>
         </div>
     );
 }
