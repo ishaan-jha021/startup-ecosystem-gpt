@@ -81,11 +81,15 @@ function DirectoryCard({ item }) {
             )}
 
             <div className="dir-card__links">
-                {item.website && (
-                    <a href={item.website} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-primary dir-card__link">
-                        Visit Website <ExternalLink size={12} />
-                    </a>
-                )}
+                <a
+                    href={item.website || '#'}
+                    target={item.website ? "_blank" : "_self"}
+                    rel="noopener noreferrer"
+                    className="btn btn-sm btn-primary dir-card__link"
+                    onClick={(e) => { if (!item.website) e.preventDefault(); }}
+                >
+                    Visit Website <ExternalLink size={12} />
+                </a>
 
                 {item.googleMapsLink && (
                     <a href={item.googleMapsLink} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-secondary dir-card__link">
