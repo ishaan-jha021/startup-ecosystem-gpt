@@ -80,11 +80,19 @@ function DirectoryCard({ item }) {
                 </div>
             )}
 
-            {item.googleMapsLink && (
-                <a href={item.googleMapsLink} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-secondary dir-card__link">
-                    Google Maps <ExternalLink size={12} />
-                </a>
-            )}
+            <div className="dir-card__links">
+                {item.website && (
+                    <a href={item.website} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-primary dir-card__link">
+                        Visit Website <ExternalLink size={12} />
+                    </a>
+                )}
+
+                {item.googleMapsLink && (
+                    <a href={item.googleMapsLink} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-secondary dir-card__link">
+                        Google Maps <ExternalLink size={12} />
+                    </a>
+                )}
+            </div>
 
             <style jsx>{`
         .dir-card { padding: var(--space-xl); height: 100%; display: flex; flex-direction: column; }
@@ -103,7 +111,8 @@ function DirectoryCard({ item }) {
         .dir-card__reasons li { font-size: var(--fs-sm); color: var(--gray-600); margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px dashed var(--gray-200); padding-bottom: 4px; }
         .dir-card__reasons li strong { color: var(--gray-900); }
         
-        .dir-card__link { margin-top: auto; justify-content: center; }
+        .dir-card__links { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+        .dir-card__link { justify-content: center; }
       `}</style>
         </div>
     );

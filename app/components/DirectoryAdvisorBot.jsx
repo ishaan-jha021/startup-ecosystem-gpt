@@ -33,7 +33,7 @@ export default function DirectoryAdvisorBot() {
         try {
             // Include dataset context in system prompt seamlessly behind the scenes
             const contextText = westernLineData.map(item =>
-                `- **${item.name}** (${item.broadType} ${item.type} in ${item.subRegion}, ${item.area}): Equity: ${item.equityTaken} (${item.equityCategory}), Ideal Stage: ${item.idealStage}, Fee: ${item.fee}, Funding: ${item.fundingGuarantee}, Contact: ${item.contactDetails}`
+                `- **${item.name}** (${item.broadType} ${item.type} in ${item.subRegion}, ${item.area}): Equity: ${item.equityTaken} (${item.equityCategory}), Ideal Stage: ${item.idealStage}, Fee: ${item.fee}, Funding: ${item.fundingGuarantee}, Contact: ${item.contactDetails}${item.website ? `, Website: ${item.website}` : ''}`
             ).join('\n');
 
             const res = await fetch('/api/directory-chat', {
