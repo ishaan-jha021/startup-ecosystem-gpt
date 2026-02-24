@@ -9,7 +9,8 @@ import ThemeToggle from './ThemeToggle';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
-  { href: '/explore', label: 'Explore' },
+  { href: '/grants', label: 'Grants' },
+  { href: '/investors', label: 'Investors' },
   { href: '/directory', label: 'Spaces' },
   { href: '/advisor', label: 'AI Advisor' },
 ];

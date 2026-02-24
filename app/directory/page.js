@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { westernLineData } from '@/lib/data/western_line';
 import { ExternalLink, ChevronDown, ChevronUp, Search, MapPin, Building2, TrendingUp, Filter } from 'lucide-react';
 import Link from 'next/link';
-import DirectoryAdvisorBot from '../components/DirectoryAdvisorBot';
 
 function ScoreBadge({ score }) {
     let color = 'var(--gray-400)';

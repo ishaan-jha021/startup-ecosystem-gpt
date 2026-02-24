@@ -2,6 +2,7 @@ import './globals.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SplashScreen from './components/SplashScreen';
+import DirectoryAdvisorBot from './components/DirectoryAdvisorBot';
 
 export const metadata = {
   title: 'SEGPT — Startup Ecosystem GPT | AI-Powered Startup Advisor',
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
           <SplashScreen />
           <Navbar />
           <main>{children}</main>
+          <DirectoryAdvisorBot />
           <Footer />
         </ThemeProvider>
       </body>
