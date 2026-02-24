@@ -12,7 +12,6 @@ const NAV_LINKS = [
   { href: '/grants', label: 'Grants' },
   { href: '/investors', label: 'Investors' },
   { href: '/directory', label: 'Spaces' },
-  { href: '/advisor', label: 'AI Advisor' },
 ];
 
 export default function Navbar() {
@@ -70,8 +69,8 @@ export default function Navbar() {
         <Link href="/directory" className={`nav-bottom-item ${pathname === '/directory' ? 'nav-bottom-item--active' : ''}`}>
           <MapPin size={24} />
         </Link>
-        <Link href="/advisor" className={`nav-bottom-item ${pathname === '/advisor' ? 'nav-bottom-item--active' : ''}`}>
-          <Bot size={24} />
+        <Link href="/directory" className={`nav-bottom-item ${pathname === '/directory' ? 'nav-bottom-item--active' : ''}`}>
+          <MapPin size={24} />
         </Link>
         <Link href="/onboarding" className={`nav-bottom-item ${pathname === '/onboarding' ? 'nav-bottom-item--active' : ''}`}>
           <User size={24} />
